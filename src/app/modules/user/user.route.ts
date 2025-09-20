@@ -13,13 +13,13 @@ const router = express.Router()
 
 router.get(
   '/profile',
-  auth(USER_ROLES.ADMIN, USER_ROLES.CREATOR, USER_ROLES.USER),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
   UserController.getProfile,
 )
 
 router.patch(
   '/profile',
-  auth(USER_ROLES.ADMIN, USER_ROLES.CREATOR, USER_ROLES.USER),
+ auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
 
   fileUploadHandler(),
 
@@ -61,18 +61,18 @@ router.patch(
 
 router.delete(
   '/profile',
-  auth(USER_ROLES.ADMIN, USER_ROLES.CREATOR, USER_ROLES.USER),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
   UserController.deleteProfile,
 )
 
-router.route('/').get(auth(USER_ROLES.ADMIN), UserController.getAllUsers)
+router.route('/').get(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.getAllUsers)
 
 router
   .route('/:userId')
-  .get(auth(USER_ROLES.ADMIN), UserController.getUserById)
-  .delete(auth(USER_ROLES.ADMIN), UserController.deleteUser)
+  .get(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.getUserById)
+  .delete(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.deleteUser)
   .patch(
-    auth(USER_ROLES.ADMIN),
+    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
     validateRequest(updateUserSchema),
     UserController.updateUserStatus,
   )

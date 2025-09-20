@@ -51,7 +51,7 @@ const createAdmin = async (): Promise<Partial<IUser> | null> => {
     email: config.super_admin.email,
     name: config.super_admin.name,
     password: config.super_admin.password,
-    role: USER_ROLES.ADMIN,
+    role: USER_ROLES.SUPER_ADMIN,
     status: USER_STATUS.ACTIVE,
     verified: true,
     authentication: {
