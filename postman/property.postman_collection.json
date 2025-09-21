@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Property API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Property",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"sample_title\",\n  \"description\": \"sample_description\",\n  \"location\": \"sample_location\",\n  \"postCode\": \"sample_postCode\",\n  \"propertyType\": \"sample_propertyType\",\n  \"maxGuests\": 123,\n  \"bedrooms\": 123,\n  \"bathrooms\": 123,\n  \"price\": 123,\n  \"availableDates\": [\n    \"2025-09-21T00:04:43.404Z\"\n  ],\n  \"amenities\": [\n    \"sample_amenities_item\"\n  ],\n  \"photos\": [\n    \"sample_photos_item\"\n  ],\n  \"host\": \"507f1f77bcf86cd799439011\",\n  \"bankDetails\": \"sample_bankDetails\",\n  \"verifiedAddress\": true,\n  \"status\": \"sample_status\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/property",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "property"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Propertys",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/property",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "property"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Property by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/property/{{property_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "property",
+            "{{property_id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Property",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"sample_title\",\n  \"description\": \"sample_description\",\n  \"location\": \"sample_location\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/property/{{property_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "property",
+            "{{property_id}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Property",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/v1/property/{{property_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "property",
+            "{{property_id}}"
+          ]
+        }
+      }
+    }
+  ]
+}
