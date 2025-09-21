@@ -1,0 +1,41 @@
+import { z } from 'zod';
+
+export const PropertyValidations = {
+  create: z.object({
+    title: z.string(),
+    description: z.string(),
+    location: z.string(),
+    postCode: z.string(),
+    propertyType: z.string(),
+    maxGuests: z.number(),
+    bedrooms: z.number(),
+    bathrooms: z.number(),
+    price: z.number(),
+    availableDates: z.array(z.string()),
+    amenities: z.array(z.string()),
+    photos: z.array(z.string()),
+    host: z.string(),
+    bankDetails: z.string().optional(),
+    verifiedAddress: z.boolean().optional(),
+    status: z.string(),
+  }),
+
+  update: z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    location: z.string().optional(),
+    postCode: z.string().optional(),
+    propertyType: z.string().optional(),
+    maxGuests: z.number().optional(),
+    bedrooms: z.number().optional(),
+    bathrooms: z.number().optional(),
+    price: z.number().optional(),
+    availableDates: z.array(z.string()).optional(),
+    amenities: z.array(z.string()).optional(),
+    photos: z.array(z.string()).optional(),
+    host: z.string().optional(),
+    bankDetails: z.string().optional(),
+    verifiedAddress: z.boolean().optional(),
+    status: z.string().optional(),
+  }),
+};
