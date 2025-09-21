@@ -22,7 +22,14 @@ export interface IProperty {
   _id: Types.ObjectId
   title: string
   description: string
-  location: string
+  location: {
+    address: { type: String; required: true }
+    geo: {
+      type: { type: String; enum: ['Point']; default: 'Point' }
+      coordinates: { type: [Number]; required: true }
+    }
+  }
+
   postCode: string
   propertyType: string
 
@@ -31,17 +38,12 @@ export interface IProperty {
     bedrooms: number
     bathrooms: number
     priceStartingFrom: number
-    availableDates: Date[]
+    availableDateRanges: { from: Date; to: Date }
     amenities: string[]
   }
   coverPhotos: string[]
   photos: string[]
   host: Types.ObjectId
-
-  stripe?: {
-    accountId: string
-    stripeAccountId: boolean
-  }
 
   addressProofDocument?: string
   verifiedAddress?: boolean

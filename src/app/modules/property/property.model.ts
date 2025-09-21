@@ -6,7 +6,17 @@ const propertySchema = new Schema<IProperty>(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    location: { type: String, required: true },
+    location: {
+      address: { type: String, required: true },
+      geo: {
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point',
+        },
+        coordinates: { type: [Number], required: true }, // [longitude, latitude]
+      },
+    },
     postCode: { type: String, required: true },
     propertyType: { type: String, required: true },
 
@@ -15,7 +25,11 @@ const propertySchema = new Schema<IProperty>(
       bedrooms: { type: Number, required: true },
       bathrooms: { type: Number, required: true },
       priceStartingFrom: { type: Number, required: true },
-      availableDates: { type: [Date], default: [] },
+      availableDateRanges: {
+        from: { type: Date, required: true },
+        to: { type: Date, required: true },
+      },
+
       amenities: { type: [String], default: [] },
     },
 
@@ -24,17 +38,12 @@ const propertySchema = new Schema<IProperty>(
 
     host: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
-    stripe: {
-      accountId: { type: String },
-      stripeAccountId: { type: Boolean, default: false },
-    },
-
     addressProofDocument: { type: String }, // PDF/image for address verification
     verifiedAddress: { type: Boolean, default: false },
 
     status: {
       type: String,
-      enum: Object.values(USER_STATUS),
+      enum: Object.values(PROPERTY_STATUS),
       default: PROPERTY_STATUS.PENDING,
     },
 

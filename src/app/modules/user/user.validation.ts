@@ -49,5 +49,11 @@ export const updateUserSchema = z.object({
     deviceToken: z.string().optional(),
 
     authentication: authenticationSchema.optional(),
+    stripe: z
+      .object({
+        accountId: z.string().optional(),
+        stripeAccountId: z.boolean().optional(),
+      })
+      .optional(),
   }),
 })

@@ -62,6 +62,13 @@ const UserSchema = new Schema<IUser, UserModel>(
       requestCount: { type: Number, default: 0 },
       authType: { type: String, enum: ['createAccount', 'resetPassword'] },
     },
+    stripe: {
+      type: {
+        accountId: { type: String },
+        stripeAccountId: { type: Boolean, default: false },
+      },
+      select: false,
+    },
   },
   {
     timestamps: true,

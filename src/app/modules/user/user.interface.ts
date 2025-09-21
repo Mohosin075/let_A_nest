@@ -50,6 +50,11 @@ export interface IUser {
   // membership: Membership
 
   authentication: IAuthentication
+
+  stripe?: {
+    accountId: string
+    stripeAccountId: boolean
+  }
   createdAt: Date
   updatedAt: Date
 }
