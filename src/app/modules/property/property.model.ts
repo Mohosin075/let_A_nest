@@ -47,11 +47,7 @@ const propertySchema = new Schema<IProperty>(
       default: PROPERTY_STATUS.PENDING,
     },
 
-    hostTermsAndCondition : {
-      content : {
-        type : String
-      }
-    },
+    hostTermsAndCondition : Schema.Types.ObjectId,
 
     agreedTermsAndConditon : {type : Boolean, default : false},
     agreedAt: { type: Date, default: null },

@@ -49,9 +49,7 @@ export interface IProperty {
   verifiedAddress?: boolean
   status: PROPERTY_STATUS
 
-  hostTermsAndCondition ?: {
-    content : string
-  }
+  hostTermsAndCondition ?: Types.ObjectId
   agreedTermsAndConditon : boolean
   agreedAt: Date
 }
