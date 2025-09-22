@@ -23,8 +23,9 @@ const createProperty = catchAsync(async (req: Request, res: Response) => {
 const updateProperty = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
   const propertyData = req.body
+  
 
-  const result = await PropertyServices.updateProperty(id, propertyData)
+  const result = await PropertyServices.updateProperty(id, req.user!, propertyData)
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
