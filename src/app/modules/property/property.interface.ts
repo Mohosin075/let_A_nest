@@ -33,7 +33,7 @@ export interface IProperty {
   postCode: string
   propertyType: string
 
-  details: {
+  details?: {
     maxGuests: number
     bedrooms: number
     bathrooms: number

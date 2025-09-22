@@ -34,6 +34,20 @@ const updateProperty = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
+const updatePropertyImages = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params
+  const propertyData = req.body
+
+  const result = await PropertyServices.updatePropertyImages(id, propertyData)
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Property updated successfully',
+    data: result,
+  })
+})
+
 const getSingleProperty = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
   const result = await PropertyServices.getSingleProperty(id)
@@ -82,4 +96,5 @@ export const PropertyController = {
   getSingleProperty,
   getAllProperties,
   deleteProperty,
+  updatePropertyImages,
 }

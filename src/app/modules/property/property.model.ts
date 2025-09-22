@@ -21,13 +21,13 @@ const propertySchema = new Schema<IProperty>(
     propertyType: { type: String, required: true },
 
     details: {
-      maxGuests: { type: Number, required: true },
-      bedrooms: { type: Number, required: true },
-      bathrooms: { type: Number, required: true },
-      priceStartingFrom: { type: Number, required: true },
+      maxGuests: { type: Number },
+      bedrooms: { type: Number },
+      bathrooms: { type: Number },
+      priceStartingFrom: { type: Number },
       availableDateRanges: {
-        from: { type: Date, required: true },
-        to: { type: Date, required: true },
+        from: { type: Date },
+        to: { type: Date },
       },
 
       amenities: { type: [String], default: [] },
@@ -36,7 +36,7 @@ const propertySchema = new Schema<IProperty>(
     coverPhotos: { type: [String], default: [] },
     photos: { type: [String], default: [] },
 
-    host: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    host: { type: Schema.Types.ObjectId, ref: 'User' },
 
     addressProofDocument: { type: String }, // PDF/image for address verification
     verifiedAddress: { type: Boolean, default: false },

@@ -4,41 +4,39 @@ import { PropertyValidations } from './property.validation'
 import validateRequest from '../../middleware/validateRequest'
 import auth from '../../middleware/auth'
 import { USER_ROLES } from '../../../enum/user'
+import fileUploadHandler from '../../middleware/fileUploadHandler'
 
 const router = express.Router()
 
-router.get(
-  '/',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
-  PropertyController.getAllProperties,
-)
+// Auth roles used everywhere
+const roles = [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST]
 
-router.get(
-  '/:id',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
-  PropertyController.getSingleProperty,
-)
+// /api/v1/properties
+router
+  .route('/')
+  .get(auth(...roles), PropertyController.getAllProperties)
+  .post(
+    auth(...roles),
+    validateRequest(PropertyValidations.create),
+    PropertyController.createProperty,
+  )
 
-router.post(
-  '/',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
+// /api/v1/properties/:id
+router
+  .route('/:id')
+  .get(auth(...roles), PropertyController.getSingleProperty)
+  .patch(
+    auth(...roles),
+    validateRequest(PropertyValidations.update),
+    PropertyController.updateProperty,
+  )
+  .delete(auth(...roles), PropertyController.deleteProperty)
 
-  validateRequest(PropertyValidations.create),
-  PropertyController.createProperty,
-)
-
-router.patch(
-  '/:id',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
-
-  validateRequest(PropertyValidations.update),
-  PropertyController.updateProperty,
-)
-
-router.delete(
-  '/:id',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN),
-  PropertyController.deleteProperty,
+// /api/v1/properties/:id/images
+router.route('/:id/images').patch(
+  auth(...roles),
+  fileUploadHandler(),
+  PropertyController.updatePropertyImages, // you can swap in a specific controller if needed
 )
 
 export const PropertyRoutes = router
