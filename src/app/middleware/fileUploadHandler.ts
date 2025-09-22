@@ -20,7 +20,7 @@ const fileUploadHandler = () => {
       const allowedDocTypes = ['application/pdf']
 
       if (
-        ['photos', 'license', 'signature', 'businessProfile'].includes(
+        ['image', 'license', 'signature', 'businessProfile'].includes(
           file.fieldname,
         )
       ) {
