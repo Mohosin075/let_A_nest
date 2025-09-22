@@ -47,7 +47,14 @@ const propertySchema = new Schema<IProperty>(
       default: PROPERTY_STATUS.PENDING,
     },
 
-    agreedAt: { type: Date, default: Date.now },
+    hostTermsAndCondition : {
+      content : {
+        type : String
+      }
+    },
+
+    agreedTermsAndConditon : {type : Boolean, default : false},
+    agreedAt: { type: Date, default: null },
   },
   {
     timestamps: true, // adds createdAt & updatedAt
