@@ -873,6 +873,223 @@
           }
         }
       }
+    },
+    "/hostterms": {
+      "post": {
+        "tags": [
+          "Hostterms"
+        ],
+        "summary": "Create a new Hostterms",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HosttermsCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hostterms created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Hostterms"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Hostterms"
+        ],
+        "summary": "Get all Hosttermss",
+        "responses": {
+          "200": {
+            "description": "List of Hosttermss retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Hostterms"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hostterms/{id}": {
+      "get": {
+        "tags": [
+          "Hostterms"
+        ],
+        "summary": "Get Hostterms by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Hostterms ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hostterms retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Hostterms"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hostterms not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Hostterms"
+        ],
+        "summary": "Update Hostterms",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Hostterms ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HosttermsUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hostterms updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Hostterms"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hostterms not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Hostterms"
+        ],
+        "summary": "Delete Hostterms",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Hostterms ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hostterms deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Hostterms"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Hostterms not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1643,6 +1860,141 @@
           "status": {
             "type": "string",
             "description": "status field"
+          }
+        }
+      },
+      "SectionsItem": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "MongoDB ObjectId"
+          },
+          "title": {
+            "type": "string",
+            "description": "title field"
+          },
+          "content": {
+            "type": "string",
+            "description": "content field"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      },
+      "Hostterms": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "MongoDB ObjectId"
+          },
+          "hostId": {
+            "type": "string",
+            "description": "hostId reference ID"
+          },
+          "propertyId": {
+            "type": "string",
+            "description": "propertyId reference ID"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "isDefault field"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SectionsItem"
+            },
+            "description": "Array of sections objects"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "lastUpdated field"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last update timestamp"
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      },
+      "HosttermsCreate": {
+        "type": "object",
+        "properties": {
+          "hostId": {
+            "type": "string",
+            "description": "hostId reference ID"
+          },
+          "propertyId": {
+            "type": "string",
+            "description": "propertyId reference ID"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "isDefault field"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SectionsItem"
+            },
+            "description": "Array of sections objects"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "lastUpdated field"
+          }
+        },
+        "required": []
+      },
+      "HosttermsUpdate": {
+        "type": "object",
+        "properties": {
+          "hostId": {
+            "type": "string",
+            "description": "hostId reference ID"
+          },
+          "propertyId": {
+            "type": "string",
+            "description": "propertyId reference ID"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "isDefault field"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SectionsItem"
+            },
+            "description": "Array of sections objects"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "lastUpdated field"
           }
         }
       }

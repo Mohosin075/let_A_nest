@@ -7,6 +7,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination'
 import { paginationHelper } from '../../../helpers/paginationHelper'
 import { propertySearchableFields } from './property.constants'
 import { Types } from 'mongoose'
+import { S3Helper } from '../../../helpers/image/s3helper'
 
 const createProperty = async (
   user: JwtPayload,
@@ -137,14 +138,16 @@ const updatePropertyImages = async (
 
   const { photos, coverPhotos } = payload
 
-  console.log({photos, coverPhotos})
+if (
+  !Array.isArray(photos) || photos.length === 0 ||
+  !Array.isArray(coverPhotos) || coverPhotos.length === 0
+) {
+  throw new ApiError(
+    StatusCodes.BAD_REQUEST,
+    'Both photos and coverPhotos must be non-empty arrays!'
+  );
+}
 
-  if (!photos || coverPhotos) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      'Photos and coverPhotos are Required!',
-    )
-  }
 
   // return
 
@@ -169,19 +172,33 @@ const updatePropertyImages = async (
 
 const deleteProperty = async (id: string): Promise<IProperty> => {
   if (!Types.ObjectId.isValid(id)) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID')
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID');
   }
 
-  const result = await Property.findByIdAndDelete(id)
-  if (!result) {
+  // 1️⃣ Find the property first (so we know which files to remove)
+  const property = await Property.findById(id);
+  if (!property) {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
-      'Something went wrong while deleting property, please try again with valid id.',
-    )
+      'Property not found or already deleted.'
+    );
   }
+  
+  const fileKeys: string[] = [
+    ...(property.photos ?? []),
+    ...(property.coverPhotos ?? []),
+  ];
 
-  return result
-}
+  await Promise.all(
+    fileKeys.map(key => S3Helper.deleteFromS3(key))
+  );
+
+  // 4️⃣ Finally remove the property doc itself
+  await Property.findByIdAndDelete(id);
+
+  return property;
+};
+
 
 export const PropertyServices = {
   createProperty,

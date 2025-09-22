@@ -49,6 +49,10 @@ export interface IProperty {
   verifiedAddress?: boolean
   status: PROPERTY_STATUS
 
+  hostTermsAndCondition ?: {
+    content : string
+  }
+  agreedTermsAndConditon : boolean
   agreedAt: Date
 }
 

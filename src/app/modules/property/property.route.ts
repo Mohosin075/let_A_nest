@@ -15,35 +15,42 @@ const handleStemImageUpload = async (req: any, res: any, next: any) => {
   try {
     const payload = req.body;
 
-    const imageFiles = (req.files as any)?.image as Express.Multer.File[];
+    // Grab both sets of files from Multer
+    const photoFiles = (req.files as any)?.photos as Express.Multer.File[];
+    const coverPhotoFiles = (req.files as any)?.coverPhotos as Express.Multer.File[];
 
-    if (imageFiles && imageFiles.length > 0) {
-      // Upload all images to S3
-      const uploadedImageUrls = await S3Helper.uploadMultipleFilesToS3(
-        imageFiles,
-        'image'
-      );
-
-      if (!uploadedImageUrls || uploadedImageUrls.length === 0) {
-        throw new ApiError(
-          StatusCodes.INTERNAL_SERVER_ERROR,
-          'Failed to upload image(s)'
-        );
+    // Upload photos (gallery images)
+    let uploadedPhotos: string[] = [];
+    if (photoFiles && photoFiles.length > 0) {
+      uploadedPhotos = await S3Helper.uploadMultipleFilesToS3(photoFiles, 'image');
+      if (!uploadedPhotos.length) {
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to upload photos');
       }
-
-      // 👇 Attach to the request body for your model
-      req.body = {
-        ...payload,
-        photos: uploadedImageUrls, 
-      };
     }
+
+    // Upload cover photos (separate field)
+    let uploadedCoverPhotos: string[] = [];
+    if (coverPhotoFiles && coverPhotoFiles.length > 0) {
+      uploadedCoverPhotos = await S3Helper.uploadMultipleFilesToS3(coverPhotoFiles, 'image');
+      if (!uploadedCoverPhotos.length) {
+        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to upload cover photos');
+      }
+    }
+
+    // ✅ Merge results back into req.body
+    req.body = {
+      ...payload,
+      ...(uploadedPhotos.length ? { photos: uploadedPhotos } : {}),
+      ...(uploadedCoverPhotos.length ? { coverPhotos: uploadedCoverPhotos } : {}),
+    };
 
     next();
   } catch (error) {
     console.error({ error });
-    return res.status(400).json({ message: 'Failed to upload image' });
+    return res.status(400).json({ message: 'Failed to upload image(s)' });
   }
 };
+
 
 
 // Auth roles used everywhere
