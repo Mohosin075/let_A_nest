@@ -108,45 +108,50 @@ const updateProperty = async (
   payload: Partial<IProperty>,
 ): Promise<IProperty | null> => {
   if (!Types.ObjectId.isValid(id)) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID');
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID')
   }
 
   // Update property with payload first
   let result = await Property.findByIdAndUpdate(
     new Types.ObjectId(id),
     { $set: payload },
-    { new: true, runValidators: true }
-  ).populate('host');
+    { new: true, runValidators: true },
+  ).populate('host')
 
   // Determine which host terms to use
-  let hostTermsAndCondition;
+  let hostTermsAndCondition
 
-  const hostTerms = await Hostterms.findOne({ hostId: user.authId, propertyId: id });
-  const defaultHostTerms = await Hostterms.findOne({ hostId: user.authId, isDefault: true });
+  const hostTerms = await Hostterms.findOne({
+    hostId: user.authId,
+    propertyId: id,
+  })
+  const defaultHostTerms = await Hostterms.findOne({
+    hostId: user.authId,
+    isDefault: true,
+  })
 
-  hostTermsAndCondition = hostTerms?._id || defaultHostTerms?._id;
+  hostTermsAndCondition = hostTerms?._id || defaultHostTerms?._id
 
-  console.log({ payload });
+  console.log({ payload })
 
   // If host agreed to terms, update property with terms reference
   if (payload.agreedTermsAndConditon) {
     result = await Property.findByIdAndUpdate(
       new Types.ObjectId(id),
       { $set: { hostTermsAndCondition } }, // ✅ fixed: field mapping
-      { new: true, runValidators: true }
-    ).populate('host');
+      { new: true, runValidators: true },
+    ).populate('host')
   }
 
   if (!result) {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
-      'Requested property not found, please try again with valid id'
-    );
+      'Requested property not found, please try again with valid id',
+    )
   }
 
-  return result;
-};
-
+  return result
+}
 
 const updatePropertyImages = async (
   id: string,
@@ -158,16 +163,17 @@ const updatePropertyImages = async (
 
   const { photos, coverPhotos } = payload
 
-if (
-  !Array.isArray(photos) || photos.length === 0 ||
-  !Array.isArray(coverPhotos) || coverPhotos.length === 0
-) {
-  throw new ApiError(
-    StatusCodes.BAD_REQUEST,
-    'Both photos and coverPhotos must be non-empty arrays!'
-  );
-}
-
+  if (
+    !Array.isArray(photos) ||
+    photos.length === 0 ||
+    !Array.isArray(coverPhotos) ||
+    coverPhotos.length === 0
+  ) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Both photos and coverPhotos must be non-empty arrays!',
+    )
+  }
 
   // return
 
@@ -192,61 +198,58 @@ if (
 
 const deleteProperty = async (id: string): Promise<IProperty> => {
   if (!Types.ObjectId.isValid(id)) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID');
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID')
   }
 
   // 1️⃣ Find the property first (so we know which files to remove)
-  const property = await Property.findById(id);
+  const property = await Property.findById(id)
   if (!property) {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
-      'Property not found or already deleted.'
-    );
+      'Property not found or already deleted.',
+    )
   }
-  
+
   const fileKeys: string[] = [
     ...(property.photos ?? []),
     ...(property.coverPhotos ?? []),
-  ];
+  ]
 
-  await Promise.all(
-    fileKeys.map(key => S3Helper.deleteFromS3(key))
-  );
+  await Promise.all(fileKeys.map(key => S3Helper.deleteFromS3(key)))
 
   // 4️⃣ Finally remove the property doc itself
-  await Property.findByIdAndDelete(id);
+  await Property.findByIdAndDelete(id)
 
-  return property;
-};
-
-
-const addHostBankAccount = async(user : JwtPayload)=>{
-  return user
+  return property
 }
 
+const addHostBankAccount = async (user: JwtPayload) => {
+  return user
+}
 
 export const verifyPropertyAddress = async (
   id: string,
   user: JwtPayload,
-  payload: { addressProofDocument: string[] }
+  payload: any,
 ): Promise<IProperty | null> => {
   if (!Types.ObjectId.isValid(id)) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID');
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID')
   }
-console.log({payload})
   const result = await Property.findOneAndUpdate(
     { _id: id, host: user.authId },
     payload,
-    { new: true, runValidators: true }
-  );
+    { new: true, runValidators: true },
+  ).select('+addressProofDocument')
 
   if (!result) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'Property not found! Provide a valid id.');
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Property not found! Provide a valid id.',
+    )
   }
 
-  return result;
-};
-
+  return result
+}
 
 export const PropertyServices = {
   createProperty,
@@ -256,5 +259,5 @@ export const PropertyServices = {
   updatePropertyImages,
   deleteProperty,
   addHostBankAccount,
-  verifyPropertyAddress
+  verifyPropertyAddress,
 }

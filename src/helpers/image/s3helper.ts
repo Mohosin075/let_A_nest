@@ -25,7 +25,7 @@ const uploadToS3 = async (
   file: Express.Multer.File,
   folder: 'image' | 'pdf',
 ): Promise<string> => {
-  const fileKey = `${folder}/${Date.now().toString()}-${file.originalname}` || 'unknown.pdf'
+  const fileKey = `${folder}/${Date.now().toString()}-${file.originalname}`
   const params = {
     Bucket: config.aws.bucket_name,
     Key: fileKey,
@@ -72,25 +72,31 @@ const uploadMultipleFilesToS3 = async (
       // process with sharp (resize/compress)
     } else if (file.mimetype.startsWith('video/')) {
       // upload as-is, no sharp
+    } else if (file.mimetype === 'application/pdf') {
+      // allow PDF, no sharp
     } else {
       throw new Error('Unsupported file type')
     }
 
     // Generate unique file name
     const fileExtension = file.originalname.split('.').pop()
-    const fileKey = `${folder}/${Date.now()}.${fileExtension}`
+    const fileKey = `${folder}/${Date.now()}-${file.originalname}`
 
     try {
-      // Optimize image using sharp (resize, compress)
-      const optimizedImage = await sharp(file.buffer)
-        .resize(1024) // Resize to a max width of 1024px (optional)
-        .jpeg({ quality: 80 }) // Compress to 80% quality (change for PNG/WebP)
-        .toBuffer()
+      let fileBuffer = file.buffer
+
+      // Optimize only images
+      if (file.mimetype.startsWith('image/')) {
+        fileBuffer = await sharp(file.buffer)
+          .resize(1024)
+          .jpeg({ quality: 80 })
+          .toBuffer()
+      }
 
       const params = {
         Bucket: process.env.AWS_BUCKET_NAME!,
         Key: fileKey,
-        Body: optimizedImage, // Upload optimized image
+        Body: fileBuffer,
         ContentType: file.mimetype,
       }
 
@@ -99,31 +105,29 @@ const uploadMultipleFilesToS3 = async (
       return getPublicUri(fileKey)
     } catch (error) {
       console.error('Error uploading file to S3:', error)
-      return null // Instead of throwing, return null to continue with other uploads
+      return null // continue with other uploads
     }
   })
 
-  // Use `Promise.allSettled` to avoid one failure blocking all uploads
   const results = await Promise.allSettled(uploadPromises)
   return results
     .filter(result => result.status === 'fulfilled' && result.value)
     .map(result => (result as PromiseFulfilledResult<string>).value)
 }
 
-
 const uploadMultipleVideosToS3 = async (
   files: Express.Multer.File[],
-  folder: string
+  folder: string,
 ): Promise<string[]> => {
   if (!files || files.length === 0) {
-    throw new Error("No video files provided for upload");
+    throw new Error('No video files provided for upload')
   }
 
-  const uploadPromises = files.map(async (file) => {
-    const fileExtension = file.originalname.split(".").pop();
+  const uploadPromises = files.map(async file => {
+    const fileExtension = file.originalname.split('.').pop()
     const fileKey = `${folder}/${Date.now()}-${Math.random()
       .toString(36)
-      .substring(2)}.${fileExtension}`;
+      .substring(2)}.${fileExtension}`
 
     try {
       const params = {
@@ -131,24 +135,23 @@ const uploadMultipleVideosToS3 = async (
         Key: fileKey,
         Body: file.buffer, // Upload raw video
         ContentType: file.mimetype,
-      };
+      }
 
-      const command = new PutObjectCommand(params);
-      await s3Client.send(command);
+      const command = new PutObjectCommand(params)
+      await s3Client.send(command)
 
-      return getPublicUri(fileKey);
+      return getPublicUri(fileKey)
     } catch (error) {
-      console.error("Error uploading video to S3:", error);
-      return null;
+      console.error('Error uploading video to S3:', error)
+      return null
     }
-  });
+  })
 
-  const results = await Promise.allSettled(uploadPromises);
+  const results = await Promise.allSettled(uploadPromises)
   return results
-    .filter((r) => r.status === "fulfilled" && r.value)
-    .map((r) => (r as PromiseFulfilledResult<string>).value);
-};
-
+    .filter(r => r.status === 'fulfilled' && r.value)
+    .map(r => (r as PromiseFulfilledResult<string>).value)
+}
 
 export const S3Helper = {
   uploadToS3,
