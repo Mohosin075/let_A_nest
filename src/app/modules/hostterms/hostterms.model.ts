@@ -10,7 +10,8 @@ const hosttermsSchema = new Schema<IHostterms, HosttermsModel>({
   hostId: { type: Schema.Types.ObjectId, ref: 'User' },
   propertyId: { type: Schema.Types.ObjectId, ref: 'Property' },
   isDefault: { type: Boolean , default : false},
-  sections: [sectionsItemSchema],
+  // sections: [sectionsItemSchema],
+  content : { type: String },
   lastUpdated: { type: Date },
 }, {
   timestamps: true
