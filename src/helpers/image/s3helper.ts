@@ -25,7 +25,7 @@ const uploadToS3 = async (
   file: Express.Multer.File,
   folder: 'image' | 'pdf',
 ): Promise<string> => {
-  const fileKey = `${folder}/${Date.now().toString()}-${file.originalname}`
+  const fileKey = `${folder}/${Date.now().toString()}-${file.originalname}` || 'unknown.pdf'
   const params = {
     Bucket: config.aws.bucket_name,
     Key: fileKey,

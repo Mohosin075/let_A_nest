@@ -23,9 +23,12 @@ const createProperty = catchAsync(async (req: Request, res: Response) => {
 const updateProperty = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
   const propertyData = req.body
-  
 
-  const result = await PropertyServices.updateProperty(id, req.user!, propertyData)
+  const result = await PropertyServices.updateProperty(
+    id,
+    req.user!,
+    propertyData,
+  )
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -91,6 +94,39 @@ const deleteProperty = catchAsync(async (req: Request, res: Response) => {
   })
 })
 
+const addHostBankAccount = catchAsync(async (req: Request, res: Response) => {
+  const result = await PropertyServices.addHostBankAccount(req.user!)
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Bank account added successfully',
+    data: result,
+  })
+})
+
+const verifyPropertyAddress = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params
+    const payload = req.body
+
+    console.log(payload)
+
+    const result = await PropertyServices.verifyPropertyAddress(
+      id,
+      req.user!,
+      payload,
+    )
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: 'Property docs uploaded successfully',
+      data: result,
+    })
+  },
+)
+
 export const PropertyController = {
   createProperty,
   updateProperty,
@@ -98,4 +134,6 @@ export const PropertyController = {
   getAllProperties,
   deleteProperty,
   updatePropertyImages,
+  addHostBankAccount,
+  verifyPropertyAddress,
 }

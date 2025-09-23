@@ -38,7 +38,7 @@ const propertySchema = new Schema<IProperty>(
 
     host: { type: Schema.Types.ObjectId, ref: 'User' },
 
-    addressProofDocument: { type: String }, // PDF/image for address verification
+    addressProofDocument: { type: [String] , default : [], select : 0}, // PDF/image for address verification
     verifiedAddress: { type: Boolean, default: false },
 
     status: {

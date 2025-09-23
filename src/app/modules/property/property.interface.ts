@@ -45,7 +45,7 @@ export interface IProperty {
   photos: string[]
   host: Types.ObjectId
 
-  addressProofDocument?: string
+  addressProofDocument?: string[]
   verifiedAddress?: boolean
   status: PROPERTY_STATUS
 

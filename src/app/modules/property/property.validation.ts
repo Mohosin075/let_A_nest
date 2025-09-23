@@ -43,7 +43,7 @@ export const PropertyValidations = {
       coverPhotos: z.array(z.string()).optional(),
       photos: z.array(z.string()).optional(),
       host: z.string().optional(),
-      addressProofDocument: z.string().optional(),
+      addressProofDocument: z.array(z.string()).optional(),
       verifiedAddress: z.boolean().optional(),
       agreedTermsAndConditon : z.boolean().optional(),
       hostTermsAndCondition : z.object({
@@ -79,7 +79,7 @@ export const PropertyValidations = {
       coverPhotos: z.array(z.string()).optional(),
       photos: z.array(z.string()).optional(),
       host: z.string().optional(),
-      addressProofDocument: z.string().optional(),
+      addressProofDocument: z.array(z.string()).optional(),
       agreedTermsAndConditon : z.boolean().optional(),
       hostTermsAndCondition : z.object({
         content : z.string()
