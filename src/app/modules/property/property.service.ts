@@ -220,6 +220,34 @@ const deleteProperty = async (id: string): Promise<IProperty> => {
 };
 
 
+const addHostBankAccount = async(user : JwtPayload)=>{
+  return user
+}
+
+
+export const verifyPropertyAddress = async (
+  id: string,
+  user: JwtPayload,
+  payload: { addressProofDocument: string[] }
+): Promise<IProperty | null> => {
+  if (!Types.ObjectId.isValid(id)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid Property ID');
+  }
+console.log({payload})
+  const result = await Property.findOneAndUpdate(
+    { _id: id, host: user.authId },
+    payload,
+    { new: true, runValidators: true }
+  );
+
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Property not found! Provide a valid id.');
+  }
+
+  return result;
+};
+
+
 export const PropertyServices = {
   createProperty,
   getAllPropertys,
@@ -227,4 +255,6 @@ export const PropertyServices = {
   updateProperty,
   updatePropertyImages,
   deleteProperty,
+  addHostBankAccount,
+  verifyPropertyAddress
 }

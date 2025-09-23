@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { NextFunction } from 'express'
 import { PropertyController } from './property.controller'
 import { PropertyValidations } from './property.validation'
 import validateRequest from '../../middleware/validateRequest'
@@ -11,29 +11,42 @@ import { S3Helper } from '../../../helpers/image/s3helper'
 
 const router = express.Router()
 
-const handleStemImageUpload = async (req: any, res: any, next: any) => {
+const handleImageUpload = async (req: any, res: any, next: any) => {
   try {
-    const payload = req.body;
+    const payload = req.body
 
     // Grab both sets of files from Multer
-    const photoFiles = (req.files as any)?.photos as Express.Multer.File[];
-    const coverPhotoFiles = (req.files as any)?.coverPhotos as Express.Multer.File[];
+    const photoFiles = (req.files as any)?.photos as Express.Multer.File[]
+    const coverPhotoFiles = (req.files as any)
+      ?.coverPhotos as Express.Multer.File[]
 
     // Upload photos (gallery images)
-    let uploadedPhotos: string[] = [];
+    let uploadedPhotos: string[] = []
     if (photoFiles && photoFiles.length > 0) {
-      uploadedPhotos = await S3Helper.uploadMultipleFilesToS3(photoFiles, 'image');
+      uploadedPhotos = await S3Helper.uploadMultipleFilesToS3(
+        photoFiles,
+        'image',
+      )
       if (!uploadedPhotos.length) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to upload photos');
+        throw new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          'Failed to upload photos',
+        )
       }
     }
 
     // Upload cover photos (separate field)
-    let uploadedCoverPhotos: string[] = [];
+    let uploadedCoverPhotos: string[] = []
     if (coverPhotoFiles && coverPhotoFiles.length > 0) {
-      uploadedCoverPhotos = await S3Helper.uploadMultipleFilesToS3(coverPhotoFiles, 'image');
+      uploadedCoverPhotos = await S3Helper.uploadMultipleFilesToS3(
+        coverPhotoFiles,
+        'image',
+      )
       if (!uploadedCoverPhotos.length) {
-        throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to upload cover photos');
+        throw new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          'Failed to upload cover photos',
+        )
       }
     }
 
@@ -41,17 +54,51 @@ const handleStemImageUpload = async (req: any, res: any, next: any) => {
     req.body = {
       ...payload,
       ...(uploadedPhotos.length ? { photos: uploadedPhotos } : {}),
-      ...(uploadedCoverPhotos.length ? { coverPhotos: uploadedCoverPhotos } : {}),
-    };
+      ...(uploadedCoverPhotos.length
+        ? { coverPhotos: uploadedCoverPhotos }
+        : {}),
+    }
 
-    next();
+    next()
   } catch (error) {
-    console.error({ error });
-    return res.status(400).json({ message: 'Failed to upload image(s)' });
+    console.error({ error })
+    return res.status(400).json({ message: 'Failed to upload image(s)' })
   }
-};
+}
 
+const handleDocUpload = async (req: any, res: any, next: any) => {
+  try {
+    const files = req.files as any
+    const docFiles = files?.doc || []
 
+    if (!docFiles.length) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'No document uploaded')
+    }
+
+    const uploadedDocs = await S3Helper.uploadToS3(docFiles, 'pdf')
+
+    if (!uploadedDocs.length) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        'Failed to upload documents',
+      )
+    }
+
+    // merge doc URLs into req.body for the next middleware/controller
+    req.body = {
+      ...req.body,
+      addressProofDocument: uploadedDocs,
+    }
+
+    next()
+  } catch (err) {
+    next(
+      err instanceof ApiError
+        ? err
+        : new ApiError(StatusCodes.BAD_REQUEST, 'Document upload failed'),
+    )
+  }
+}
 
 // Auth roles used everywhere
 const roles = [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST]
@@ -64,6 +111,21 @@ router
     auth(...roles),
     validateRequest(PropertyValidations.create),
     PropertyController.createProperty,
+  )
+
+router.route('/add-bank-account').patch(
+  auth(USER_ROLES.HOST),
+
+  PropertyController.addHostBankAccount,
+)
+
+router
+  .route('/upload-property-doc/:id')
+  .patch(
+    auth(USER_ROLES.HOST),
+    fileUploadHandler(),
+    handleDocUpload,
+    PropertyController.verifyPropertyAddress,
   )
 
 // /api/v1/properties/:id
@@ -82,9 +144,9 @@ router.route('/:id/images').patch(
   auth(...roles),
   fileUploadHandler(),
 
-  handleStemImageUpload,
+  handleImageUpload,
 
-  PropertyController.updatePropertyImages, // you can swap in a specific controller if needed
+  PropertyController.updatePropertyImages,
 )
 
 export const PropertyRoutes = router
