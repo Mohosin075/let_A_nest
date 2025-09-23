@@ -110,7 +110,7 @@ const verifyPropertyAddress = catchAsync(
     const { id } = req.params
     const payload = req.body
 
-    console.log(payload)
+    // console.log(payload)
 
     const result = await PropertyServices.verifyPropertyAddress(
       id,

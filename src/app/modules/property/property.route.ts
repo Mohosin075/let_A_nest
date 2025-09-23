@@ -67,36 +67,38 @@ const handleImageUpload = async (req: any, res: any, next: any) => {
 }
 
 const handleDocUpload = async (req: any, res: any, next: any) => {
+  const payload = req.body
   try {
-    const files = req.files as any
-    const docFiles = files?.doc || []
-
-    if (!docFiles.length) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'No document uploaded')
+    const docFiles = (req.files as any).doc as Express.Multer.File[]
+    if (!docFiles || docFiles.length === 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'No document file provided')
     }
 
-    const uploadedDocs = await S3Helper.uploadToS3(docFiles, 'pdf')
+    // Take the first file only
+    const docFile = docFiles
 
-    if (!uploadedDocs.length) {
+    console.log(docFile)
+
+    // Upload single doc to S3
+    const uploadedDocUrl = await S3Helper.uploadMultipleFilesToS3(
+      docFile,
+      'pdf',
+    )
+
+    if (!uploadedDocUrl) {
       throw new ApiError(
         StatusCodes.INTERNAL_SERVER_ERROR,
-        'Failed to upload documents',
+        'Failed to upload document',
       )
     }
 
-    // merge doc URLs into req.body for the next middleware/controller
     req.body = {
-      ...req.body,
-      addressProofDocument: uploadedDocs,
+      ...payload,
+      addressProofDocument: uploadedDocUrl, // Store as array
     }
-
     next()
   } catch (err) {
-    next(
-      err instanceof ApiError
-        ? err
-        : new ApiError(StatusCodes.BAD_REQUEST, 'Document upload failed'),
-    )
+    res.status(400).json({ message: 'Failed to upload doc' })
   }
 }
 
