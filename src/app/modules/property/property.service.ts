@@ -41,89 +41,106 @@ export const getAllPropertys = async (
   const { page, skip, limit, sortBy, sortOrder } =
     paginationHelper.calculatePagination(pagination)
 
-  const andConditions: any[] = []
+  const andConditions: Record<string, any>[] = []
 
-  // --- Search functionality ---
+  /* ---------- 🔍 Global text search ---------- */
   if (searchTerm) {
     andConditions.push({
-      $or: ['title', 'description', 'location', 'postCode', 'bankDetails'].map(
-        field => ({
-          [field]: { $regex: searchTerm, $options: 'i' },
-        }),
-      ),
+      $or: propertySearchableFields.map(field => {
+        const path = field === 'amenities' ? 'details.amenities' : field
+        return { [path]: { $regex: searchTerm, $options: 'i' } }
+      }),
     })
   }
 
-  // --- Filter functionality (supports nested fields) ---
+  /* ---------- 🎯 Structured / field filters ---------- */
   if (Object.keys(filterData).length) {
     const filters: Record<string, any>[] = []
 
-    for (const [key, value] of Object.entries(filterData)) {
+    for (const [key, rawVal] of Object.entries(filterData)) {
+      const value = Array.isArray(rawVal) ? rawVal : [rawVal]
+
       switch (key) {
         case 'amenities':
-          // Must contain *all* amenities passed (string or string[])
+          // ✅ Case-insensitive match for all requested amenities
           filters.push({
-            'details.amenities': {
-              $all: Array.isArray(value) ? value : [value],
-            },
+            $and: value.map(v => ({
+              'details.amenities': { $regex: new RegExp(`^${v}$`, 'i') },
+            })),
           })
           break
 
         case 'maxGuests':
-          filters.push({
-            'details.maxGuests': { $gte: Number(value) },
-          })
+          filters.push({ 'details.maxGuests': { $gte: Number(value[0]) } })
           break
 
         case 'bedrooms':
-          filters.push({
-            'details.bedrooms': { $gte: Number(value) },
-          })
+          filters.push({ 'details.bedrooms': { $gte: Number(value[0]) } })
           break
 
         case 'bathrooms':
-          filters.push({
-            'details.bathrooms': { $gte: Number(value) },
-          })
+          filters.push({ 'details.bathrooms': { $gte: Number(value[0]) } })
           break
 
         case 'priceMin':
         case 'priceMax':
-          // handled after loop to combine range
-          break
+          break // handled after loop
+
+        case 'from':
+        case 'to':
+          break // handled after loop for availability
 
         default:
-          // top-level property field
-          filters.push({ [key]: value })
+          // Top-level string fields, case-insensitive
+          filters.push({ [key]: { $regex: value[0], $options: 'i' } })
       }
     }
 
-    // Combine min / max price into one query
-    if (filterData.priceMin || filterData.priceMax) {
-      const priceCond: Record<string, number> = {}
-      if (filterData.priceMin) priceCond.$gte = Number(filterData.priceMin)
-      if (filterData.priceMax) priceCond.$lte = Number(filterData.priceMax)
-
+    /* ---------- 💰 Price range ---------- */
+    const priceCond: Record<string, number> = {}
+    if (
+      filterData.priceMin !== undefined &&
+      !isNaN(Number(filterData.priceMin))
+    ) {
+      priceCond.$gte = Number(filterData.priceMin)
+    }
+    if (
+      filterData.priceMax !== undefined &&
+      !isNaN(Number(filterData.priceMax))
+    ) {
+      priceCond.$lte = Number(filterData.priceMax)
+    }
+    if (Object.keys(priceCond).length > 0) {
       filters.push({ 'details.priceStartingFrom': priceCond })
     }
 
-    if (filters.length) {
-      andConditions.push({ $and: filters })
+    /* ---------- 📅 Availability (from-to) ---------- */
+    if (filterData.from && filterData.to) {
+      const requestedFrom = new Date(filterData.from as string)
+      const requestedTo = new Date(filterData.to as string)
+
+      filters.push({
+        $and: [
+          { 'details.availableDateRanges.from': { $lte: requestedFrom } },
+          { 'details.availableDateRanges.to': { $gte: requestedTo } },
+        ],
+      })
     }
+
+    if (filters.length) andConditions.push({ $and: filters })
   }
 
   const whereConditions = andConditions.length ? { $and: andConditions } : {}
 
-  // --- Query + count in parallel ---
+  /* ---------- 🚀 Query + count in parallel ---------- */
   const [result, total] = await Promise.all([
-    Property.find(whereConditions).select('details amenities')
-    
+    Property.find(whereConditions)
       .skip(skip)
       .limit(limit)
       .sort({ [sortBy]: sortOrder })
       .populate({
         path: 'host',
-        select: 'name email phoneNumber', // add more host fields as needed
+        select: 'name email phoneNumber', // add/remove host fields as needed
       }),
     Property.countDocuments(whereConditions),
   ])
