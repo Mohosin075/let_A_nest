@@ -32,7 +32,7 @@ const createProperty = async (
   }
 }
 
-const getAllPropertys = async (
+export const getAllPropertys = async (
   user: JwtPayload,
   filterables: IPropertyFilterables,
   pagination: IPaginationOptions,
@@ -41,37 +41,107 @@ const getAllPropertys = async (
   const { page, skip, limit, sortBy, sortOrder } =
     paginationHelper.calculatePagination(pagination)
 
-  const andConditions = []
+  const andConditions: Record<string, any>[] = []
 
-  // Search functionality
+  /* ---------- 🔍 Global text search ---------- */
   if (searchTerm) {
     andConditions.push({
-      $or: propertySearchableFields.map(field => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: 'i',
-        },
-      })),
+      $or: propertySearchableFields.map(field => {
+        const path = field === 'amenities' ? 'details.amenities' : field
+        return { [path]: { $regex: searchTerm, $options: 'i' } }
+      }),
     })
   }
 
-  // Filter functionality
+  /* ---------- 🎯 Structured / field filters ---------- */
   if (Object.keys(filterData).length) {
-    andConditions.push({
-      $and: Object.entries(filterData).map(([key, value]) => ({
-        [key]: value,
-      })),
-    })
+    const filters: Record<string, any>[] = []
+
+    for (const [key, rawVal] of Object.entries(filterData)) {
+      const value = Array.isArray(rawVal) ? rawVal : [rawVal]
+
+      switch (key) {
+        case 'amenities':
+          // ✅ Case-insensitive match for all requested amenities
+          filters.push({
+            $and: value.map(v => ({
+              'details.amenities': { $regex: new RegExp(`^${v}$`, 'i') },
+            })),
+          })
+          break
+
+        case 'maxGuests':
+          filters.push({ 'details.maxGuests': { $gte: Number(value[0]) } })
+          break
+
+        case 'bedrooms':
+          filters.push({ 'details.bedrooms': { $gte: Number(value[0]) } })
+          break
+
+        case 'bathrooms':
+          filters.push({ 'details.bathrooms': { $gte: Number(value[0]) } })
+          break
+
+        case 'priceMin':
+        case 'priceMax':
+          break // handled after loop
+
+        case 'from':
+        case 'to':
+          break // handled after loop for availability
+
+        default:
+          // Top-level string fields, case-insensitive
+          filters.push({ [key]: { $regex: value[0], $options: 'i' } })
+      }
+    }
+
+    /* ---------- 💰 Price range ---------- */
+    const priceCond: Record<string, number> = {}
+    if (
+      filterData.priceMin !== undefined &&
+      !isNaN(Number(filterData.priceMin))
+    ) {
+      priceCond.$gte = Number(filterData.priceMin)
+    }
+    if (
+      filterData.priceMax !== undefined &&
+      !isNaN(Number(filterData.priceMax))
+    ) {
+      priceCond.$lte = Number(filterData.priceMax)
+    }
+    if (Object.keys(priceCond).length > 0) {
+      filters.push({ 'details.priceStartingFrom': priceCond })
+    }
+
+    /* ---------- 📅 Availability (from-to) ---------- */
+    if (filterData.from && filterData.to) {
+      const requestedFrom = new Date(filterData.from as string)
+      const requestedTo = new Date(filterData.to as string)
+
+      filters.push({
+        $and: [
+          { 'details.availableDateRanges.from': { $lte: requestedFrom } },
+          { 'details.availableDateRanges.to': { $gte: requestedTo } },
+        ],
+      })
+    }
+
+    if (filters.length) andConditions.push({ $and: filters })
   }
 
   const whereConditions = andConditions.length ? { $and: andConditions } : {}
 
+  /* ---------- 🚀 Query + count in parallel ---------- */
   const [result, total] = await Promise.all([
     Property.find(whereConditions)
       .skip(skip)
       .limit(limit)
       .sort({ [sortBy]: sortOrder })
-      .populate('host'),
+      .populate({
+        path: 'host',
+        select: 'name email phoneNumber', // add/remove host fields as needed
+      }),
     Property.countDocuments(whereConditions),
   ])
 
@@ -132,10 +202,8 @@ const updateProperty = async (
 
   hostTermsAndCondition = hostTerms?._id || defaultHostTerms?._id
 
-  console.log({ payload })
-
   // If host agreed to terms, update property with terms reference
-  if (payload.agreedTermsAndConditon) {
+  if (hostTermsAndCondition) {
     result = await Property.findByIdAndUpdate(
       new Types.ObjectId(id),
       { $set: { hostTermsAndCondition } }, // ✅ fixed: field mapping

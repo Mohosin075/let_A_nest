@@ -54,7 +54,7 @@ passport.use(
     },
     async (req, accessToken, refreshToken, profile, done) => {
       req.body.profile = profile
-      req.body.role = USER_ROLES.USER
+      req.body.role = USER_ROLES.GUEST
 
       try {
         return done(null, req.body)

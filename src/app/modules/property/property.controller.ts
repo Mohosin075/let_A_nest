@@ -77,10 +77,11 @@ const getAllProperties = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'Propertys retrieved successfully',
+    message: 'Properties retrieved successfully',
     data: result,
   })
 })
+
 
 const deleteProperty = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params

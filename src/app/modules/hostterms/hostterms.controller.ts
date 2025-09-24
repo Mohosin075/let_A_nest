@@ -49,7 +49,7 @@ const getSingleHostterms = catchAsync(async (req: Request, res: Response) => {
   });
 });
 const getHostDefaultTerms = catchAsync(async (req: Request, res: Response) => {
-  
+
   const result = await HosttermsServices.getHostDefaultTerms(req.user!);
 
   sendResponse(res, {

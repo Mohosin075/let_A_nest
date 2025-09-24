@@ -8,7 +8,18 @@ export interface IPropertyFilterables {
   location?: string
   postCode?: string
   bankDetails?: string
+  // 👇 new nested filters
+  amenities?: string[] | string
+  maxGuests?: number
+  bedrooms?: number
+  bathrooms?: number
+  priceMin?: number
+  priceMax?: number
+  propertyType?: string
+  from?: string
+  to?: string
 }
+
 
 export enum PROPERTY_STATUS {
   PENDING = 'pending',
@@ -38,7 +49,7 @@ export interface IProperty {
     bedrooms: number
     bathrooms: number
     priceStartingFrom: number
-    availableDateRanges: { from: Date; to: Date }
+    availableDateRanges: { checkIn: Date; checkOut: Date }
     amenities: string[]
   }
   coverPhotos: string[]
