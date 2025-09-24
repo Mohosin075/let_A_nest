@@ -32,7 +32,7 @@ const createProperty = async (
   }
 }
 
-const getAllPropertys = async (
+export const getAllPropertys = async (
   user: JwtPayload,
   filterables: IPropertyFilterables,
   pagination: IPaginationOptions,
@@ -41,37 +41,90 @@ const getAllPropertys = async (
   const { page, skip, limit, sortBy, sortOrder } =
     paginationHelper.calculatePagination(pagination)
 
-  const andConditions = []
+  const andConditions: any[] = []
 
-  // Search functionality
+  // --- Search functionality ---
   if (searchTerm) {
     andConditions.push({
-      $or: propertySearchableFields.map(field => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: 'i',
-        },
-      })),
+      $or: ['title', 'description', 'location', 'postCode', 'bankDetails'].map(
+        field => ({
+          [field]: { $regex: searchTerm, $options: 'i' },
+        }),
+      ),
     })
   }
 
-  // Filter functionality
+  // --- Filter functionality (supports nested fields) ---
   if (Object.keys(filterData).length) {
-    andConditions.push({
-      $and: Object.entries(filterData).map(([key, value]) => ({
-        [key]: value,
-      })),
-    })
+    const filters: Record<string, any>[] = []
+
+    for (const [key, value] of Object.entries(filterData)) {
+      switch (key) {
+        case 'amenities':
+          // Must contain *all* amenities passed (string or string[])
+          filters.push({
+            'details.amenities': {
+              $all: Array.isArray(value) ? value : [value],
+            },
+          })
+          break
+
+        case 'maxGuests':
+          filters.push({
+            'details.maxGuests': { $gte: Number(value) },
+          })
+          break
+
+        case 'bedrooms':
+          filters.push({
+            'details.bedrooms': { $gte: Number(value) },
+          })
+          break
+
+        case 'bathrooms':
+          filters.push({
+            'details.bathrooms': { $gte: Number(value) },
+          })
+          break
+
+        case 'priceMin':
+        case 'priceMax':
+          // handled after loop to combine range
+          break
+
+        default:
+          // top-level property field
+          filters.push({ [key]: value })
+      }
+    }
+
+    // Combine min / max price into one query
+    if (filterData.priceMin || filterData.priceMax) {
+      const priceCond: Record<string, number> = {}
+      if (filterData.priceMin) priceCond.$gte = Number(filterData.priceMin)
+      if (filterData.priceMax) priceCond.$lte = Number(filterData.priceMax)
+
+      filters.push({ 'details.priceStartingFrom': priceCond })
+    }
+
+    if (filters.length) {
+      andConditions.push({ $and: filters })
+    }
   }
 
   const whereConditions = andConditions.length ? { $and: andConditions } : {}
 
+  // --- Query + count in parallel ---
   const [result, total] = await Promise.all([
-    Property.find(whereConditions)
+    Property.find(whereConditions).select('details amenities')
+    
       .skip(skip)
       .limit(limit)
       .sort({ [sortBy]: sortOrder })
-      .populate('host'),
+      .populate({
+        path: 'host',
+        select: 'name email phoneNumber', // add more host fields as needed
+      }),
     Property.countDocuments(whereConditions),
   ])
 
@@ -132,10 +185,8 @@ const updateProperty = async (
 
   hostTermsAndCondition = hostTerms?._id || defaultHostTerms?._id
 
-  console.log({ payload })
-
   // If host agreed to terms, update property with terms reference
-  if (payload.agreedTermsAndConditon) {
+  if (hostTermsAndCondition) {
     result = await Property.findByIdAndUpdate(
       new Types.ObjectId(id),
       { $set: { hostTermsAndCondition } }, // ✅ fixed: field mapping

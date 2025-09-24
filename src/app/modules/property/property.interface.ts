@@ -8,7 +8,15 @@ export interface IPropertyFilterables {
   location?: string
   postCode?: string
   bankDetails?: string
+  // 👇 new nested filters
+  amenities?: string[] | string
+  maxGuests?: number
+  bedrooms?: number
+  bathrooms?: number
+  priceMin?: number
+  priceMax?: number
 }
+
 
 export enum PROPERTY_STATUS {
   PENDING = 'pending',
