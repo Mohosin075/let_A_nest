@@ -65,7 +65,7 @@ router.delete(
   UserController.deleteProfile,
 )
 
-router.route('/').get(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.getAllUsers)
+router.route('/').get(auth(USER_ROLES.ADMIN, USER_ROLES.GUEST,USER_ROLES.HOST, USER_ROLES.SUPER_ADMIN), UserController.getAllUsers)
 
 router
   .route('/:userId')

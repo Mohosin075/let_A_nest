@@ -9,7 +9,7 @@ export interface IPropertyFilterables {
   postCode?: string
   bankDetails?: string
   // 👇 new nested filters
-  amenities?: string[] | string
+  amenities?: string[]
   maxGuests?: number
   bedrooms?: number
   bathrooms?: number
