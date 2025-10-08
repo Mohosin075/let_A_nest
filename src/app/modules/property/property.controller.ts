@@ -68,6 +68,11 @@ const getAllProperties = catchAsync(async (req: Request, res: Response) => {
   const filterables = pick(req.query, propertyFilterables)
   const pagination = pick(req.query, paginationFields)
 
+  // Normalize amenities for comma-separated values
+  if (filterables.amenities && typeof filterables.amenities === 'string') {
+    filterables.amenities = filterables.amenities.split(',').map(a => a.trim())
+  }
+
   const result = await PropertyServices.getAllPropertys(
     req.user!,
     filterables,
@@ -81,7 +86,6 @@ const getAllProperties = catchAsync(async (req: Request, res: Response) => {
     data: result,
   })
 })
-
 
 const deleteProperty = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params
