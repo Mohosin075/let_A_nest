@@ -11,9 +11,33 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22.21.0
+
       - name: check node node-version
         run: node -v
+
       - name: install dependencies
         run: npm install --frozen-lockfile
+
       - name: run tests
         run: npm run test
+  build-code:
+    runs-on: ubuntu-latest
+    steps:
+          - name: install node-js
+        uses: actions/setup-node@v5
+      - name: copying the codes
+        uses: actions/checkout@v5
+
+
+        with:
+          node-version: 22.21.0
+
+      - name: check node node-version
+        run: node -v
+
+      - name: install dependencies
+        run: npm install --frozen-lockfile
+
+      - name: run tests
+        run: npm run test
+    
