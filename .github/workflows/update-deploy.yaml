@@ -1,0 +1,53 @@
+name: Deploy App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.21.0
+
+      - name: Check Node version
+        run: node -v
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+  build-code:
+    runs-on: ubuntu-latest
+    needs: test-code
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.21.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the project
+        run: npm run build
+
+  deploy-code:
+    runs-on: ubuntu-latest
+    needs: build-code
+    steps:
+      - name: Deploy the code
+        run: echo "Deploying...."
