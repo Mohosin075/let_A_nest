@@ -13,3 +13,7 @@ jobs:
           node-version: 22.21.0
       - name: check node node-version
         run: node -v
+      - name: install dependencies
+        run: npm install --frozen-lockfile
+      - name: run tests
+        run: npm run test
