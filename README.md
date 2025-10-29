@@ -4,7 +4,7 @@ A robust and scalable Express.js backend template with enterprise-grade features
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🌟 Features
+## 🌟 Features **
 
 ### Authentication & Security
 - 🔐 JWT-based authentication
