@@ -10,8 +10,6 @@ import { paginationFields } from '../../../interfaces/pagination'
 import { JwtPayload } from 'jsonwebtoken'
 import ApiError from '../../../errors/ApiError'
 
-
-
 const updateProfile = catchAsync(async (req: Request, res: Response) => {
   const { imageUrl, ...userData } = req.body
 
@@ -24,7 +22,6 @@ const updateProfile = catchAsync(async (req: Request, res: Response) => {
     data: result,
   })
 })
-
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields)
@@ -74,7 +71,7 @@ const getUserById = catchAsync(async (req: Request, res: Response) => {
     message: 'User retrieved successfully',
     data: result,
   })
-});
+})
 
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.params
@@ -87,7 +84,6 @@ const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
     data: result,
   })
 })
-
 
 const getProfile = catchAsync(async (req: Request, res: Response) => {
   const result = await UserServices.getProfile(req.user!)
@@ -106,5 +102,5 @@ export const UserController = {
   getUserById,
   updateUserStatus,
   getProfile,
-  deleteProfile
+  deleteProfile,
 }

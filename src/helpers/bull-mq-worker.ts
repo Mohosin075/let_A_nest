@@ -5,9 +5,6 @@
 // import { emailHelper } from './emailHelper';
 // import { redisClient } from './redis';
 
-
-
-
 // export const notificationWorker = new Worker(
 //   'notifications',
 //   async (job: Job) => {
@@ -45,8 +42,6 @@
 
 //   }
 // );
-
-
 
 // notificationWorker.on('active', (job) => {
 //     console.log(`Job ${job.id} is now active`);

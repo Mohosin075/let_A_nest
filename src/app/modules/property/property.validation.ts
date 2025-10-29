@@ -45,10 +45,12 @@ export const PropertyValidations = {
       host: z.string().optional(),
       addressProofDocument: z.array(z.string()).optional(),
       verifiedAddress: z.boolean().optional(),
-      agreedTermsAndConditon : z.boolean().optional(),
-      hostTermsAndCondition : z.object({
-        content : z.string()
-      }).optional(),
+      agreedTermsAndConditon: z.boolean().optional(),
+      hostTermsAndCondition: z
+        .object({
+          content: z.string(),
+        })
+        .optional(),
       status: z.nativeEnum(PROPERTY_STATUS).optional(),
       agreedAt: z.string().optional(),
     }),
@@ -80,10 +82,12 @@ export const PropertyValidations = {
       photos: z.array(z.string()).optional(),
       host: z.string().optional(),
       addressProofDocument: z.array(z.string()).optional(),
-      agreedTermsAndConditon : z.boolean().optional(),
-      hostTermsAndCondition : z.object({
-        content : z.string()
-      }).optional(),
+      agreedTermsAndConditon: z.boolean().optional(),
+      hostTermsAndCondition: z
+        .object({
+          content: z.string(),
+        })
+        .optional(),
       verifiedAddress: z.boolean().optional(),
       status: z.nativeEnum(PROPERTY_STATUS).optional(),
       agreedAt: z.string().optional(),

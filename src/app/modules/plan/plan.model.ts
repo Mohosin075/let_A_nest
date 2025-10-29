@@ -29,10 +29,10 @@ const planSchema = new Schema<IPlan, PlanModel>(
       required: true,
     },
     productId: {
-      type: String
+      type: String,
     },
     paymentLink: {
-      type: String
+      type: String,
     },
     limits: {
       reelsPerWeek: { type: Number, default: 0 },

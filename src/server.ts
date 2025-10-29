@@ -26,7 +26,7 @@ async function main() {
     const port =
       typeof config.port === 'number' ? config.port : Number(config.port)
 
-    server = app.listen(port, "0.0.0.0", () => {
+    server = app.listen(port, '0.0.0.0', () => {
       logger.info(
         colors.yellow(`♻️  Application listening on port:${config.port}`),
       )
@@ -46,10 +46,9 @@ async function main() {
     //bull mq notification worker!!!!!
     // notificationWorker
     // emailWorker
-    
+
     // const pubClient = redisClient
     // const subClient = pubClient.duplicate()
-    
 
     logger.info(colors.green('🍁 Redis connected successfully'))
 
@@ -57,7 +56,6 @@ async function main() {
     socketHelper.socket(io)
     //@ts-ignore
     global.io = io
-
   } catch (error) {
     errorLogger.error(colors.red('🤢 Failed to connect Database'))
     config.node_env === 'development' && console.log(error)

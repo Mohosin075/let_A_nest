@@ -20,7 +20,6 @@ export interface IPropertyFilterables {
   to?: string
 }
 
-
 export enum PROPERTY_STATUS {
   PENDING = 'pending',
   APPROVE = 'approve',
@@ -60,8 +59,8 @@ export interface IProperty {
   verifiedAddress?: boolean
   status: PROPERTY_STATUS
 
-  hostTermsAndCondition ?: Types.ObjectId
-  agreedTermsAndConditon : boolean
+  hostTermsAndCondition?: Types.ObjectId
+  agreedTermsAndConditon: boolean
   agreedAt: Date
 }
 

@@ -166,5 +166,5 @@ export const CustomAuthController = {
   deleteAccount,
   adminLogin,
   socialLogin,
-  logout
+  logout,
 }

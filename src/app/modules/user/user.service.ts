@@ -1,34 +1,33 @@
-import { StatusCodes } from 'http-status-codes'
-import ApiError from '../../../errors/ApiError'
-import { IUser } from './user.interface'
-import { User } from './user.model'
+import { StatusCodes } from 'http-status-codes';
+import ApiError from '../../../errors/ApiError';
+import { IUser } from './user.interface';
+import { User } from './user.model';
 
-import { USER_ROLES, USER_STATUS } from '../../../enum/user'
+import { USER_ROLES, USER_STATUS } from '../../../enum/user';
 
-import { JwtPayload } from 'jsonwebtoken'
-import { logger } from '../../../shared/logger'
-import { paginationHelper } from '../../../helpers/paginationHelper'
-import { IPaginationOptions } from '../../../interfaces/pagination'
-import { S3Helper } from '../../../helpers/image/s3helper'
-import config from '../../../config'
-import { Subscription } from '../subscription/subscription.model'
-import { IPlan } from '../plan/plan.interface'
-
+import { JwtPayload } from 'jsonwebtoken';
+import { logger } from '../../../shared/logger';
+import { paginationHelper } from '../../../helpers/paginationHelper';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import { S3Helper } from '../../../helpers/image/s3helper';
+import config from '../../../config';
+import { Subscription } from '../subscription/subscription.model';
+import { IPlan } from '../plan/plan.interface';
 
 const updateProfile = async (user: JwtPayload, payload: Partial<IUser>) => {
   const isUserExist = await User.findOne({
     _id: user.authId,
     status: { $nin: [USER_STATUS.DELETED] },
-  })
+  });
 
   if (!isUserExist) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.')
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
 
   if (isUserExist.profile) {
-    const url = new URL(isUserExist.profile)
-    const key = url.pathname.substring(1)
-    await S3Helper.deleteFromS3(key)
+    const url = new URL(isUserExist.profile);
+    const key = url.pathname.substring(1);
+    await S3Helper.deleteFromS3(key);
   }
 
   const updatedProfile = await User.findOneAndUpdate(
@@ -36,15 +35,15 @@ const updateProfile = async (user: JwtPayload, payload: Partial<IUser>) => {
     {
       $set: payload,
     },
-    { new: true },
-  )
+    { new: true }
+  );
 
   if (!updatedProfile) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to update profile.')
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to update profile.');
   }
 
-  return 'Profile updated successfully.'
-}
+  return 'Profile updated successfully.';
+};
 
 const createAdmin = async (): Promise<Partial<IUser> | null> => {
   const admin = {
@@ -61,27 +60,27 @@ const createAdmin = async (): Promise<Partial<IUser> | null> => {
       latestRequestAt: new Date(),
       authType: 'createAccount',
     },
-  }
+  };
 
   const isAdminExist = await User.findOne({
     email: admin.email,
     status: { $nin: [USER_STATUS.DELETED] },
-  })
+  });
 
   if (isAdminExist) {
-    logger.log('info', 'Admin account already exist, skipping creation.🦥')
-    return isAdminExist
+    logger.log('info', 'Admin account already exist, skipping creation.🦥');
+    return isAdminExist;
   }
-  const result = await User.create([admin])
+  const result = await User.create([admin]);
   if (!result) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create admin')
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create admin');
   }
-  return result[0]
-}
+  return result[0];
+};
 
 const getAllUsers = async (paginationOptions: IPaginationOptions) => {
   const { page, limit, skip, sortBy, sortOrder } =
-    paginationHelper.calculatePagination(paginationOptions)
+    paginationHelper.calculatePagination(paginationOptions);
 
   const [result, total] = await Promise.all([
     User.find({ status: { $nin: [USER_STATUS.DELETED] } })
@@ -91,7 +90,7 @@ const getAllUsers = async (paginationOptions: IPaginationOptions) => {
       .exec(),
 
     User.countDocuments({ status: { $nin: [USER_STATUS.DELETED] } }),
-  ])
+  ]);
 
   return {
     meta: {
@@ -101,117 +100,108 @@ const getAllUsers = async (paginationOptions: IPaginationOptions) => {
       totalPages: Math.ceil(total / limit),
     },
     data: result,
-  }
-}
+  };
+};
 
 const deleteUser = async (userId: string): Promise<string> => {
   const isUserExist = await User.findOne({
     _id: userId,
     status: { $nin: [USER_STATUS.DELETED] },
-  })
+  });
   if (!isUserExist) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.')
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
 
   const deletedUser = await User.findOneAndUpdate(
     { _id: userId, status: { $nin: [USER_STATUS.DELETED] } },
     { $set: { status: USER_STATUS.DELETED } },
-    { new: true },
-  )
+    { new: true }
+  );
 
   if (!deletedUser) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to delete user.')
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to delete user.');
   }
 
-  return 'User deleted successfully.'
-}
+  return 'User deleted successfully.';
+};
 
-const deleteProfile = async (
-  userId: string,
-  password: string,
-): Promise<string> => {
+const deleteProfile = async (userId: string, password: string): Promise<string> => {
   const isUserExist = await User.findOne({
     _id: userId,
     status: { $nin: [USER_STATUS.DELETED] },
-  }).select('+password')
+  }).select('+password');
   if (!isUserExist) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.')
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
-  const isPasswordMatched = await User.isPasswordMatched(
-    password,
-    isUserExist.password,
-  )
+  const isPasswordMatched = await User.isPasswordMatched(password, isUserExist.password);
 
   if (!isPasswordMatched) {
-    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Password is incorrect.')
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Password is incorrect.');
   }
 
   const deletedUser = await User.findOneAndUpdate(
     { _id: userId, status: { $nin: [USER_STATUS.DELETED] } },
     { $set: { status: USER_STATUS.DELETED } },
-    { new: true },
-  )
+    { new: true }
+  );
 
   if (!deletedUser) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to delete user.')
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to delete user.');
   }
 
-  return 'User deleted successfully.'
-}
+  return 'User deleted successfully.';
+};
 
 const getUserById = async (userId: string): Promise<IUser | null> => {
   const isUserExist = await User.findOne({
     _id: userId,
     status: { $nin: [USER_STATUS.DELETED] },
-  })
+  });
   if (!isUserExist) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.')
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
   const user = await User.findOne({
     _id: userId,
     status: { $nin: [USER_STATUS.DELETED] },
-  })
-  return user
-}
+  });
+  return user;
+};
 
 const updateUserStatus = async (userId: string, status: USER_STATUS) => {
   const isUserExist = await User.findOne({
     _id: userId,
     status: { $nin: [USER_STATUS.DELETED] },
-  })
+  });
   if (!isUserExist) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.')
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
 
   const updatedUser = await User.findOneAndUpdate(
     { _id: userId, status: { $nin: [USER_STATUS.DELETED] } },
     { $set: { status } },
-    { new: true },
-  )
+    { new: true }
+  );
 
   if (!updatedUser) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to update user status.')
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to update user status.');
   }
 
-  return 'User status updated successfully.'
-}
+  return 'User status updated successfully.';
+};
 
 export const getProfile = async (user: JwtPayload) => {
-  
-
   // --- Fetch user ---
   const isUserExist = await User.findOne({
     _id: user.authId,
     status: { $nin: [USER_STATUS.DELETED] },
-  }).select('-authentication -password -location -__v')
+  }).select('-authentication -password -location -__v');
 
   if (!isUserExist) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.')
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found.');
   }
 
   // --- Fetch onboarding + subscription ---
   const [isOnboarded] = await Promise.all([
-    
     Subscription.findOne({
       status: 'active',
       user: user.authId,
@@ -222,16 +212,14 @@ export const getProfile = async (user: JwtPayload) => {
       })
       .lean()
       .exec(),
-  ])
-
-
+  ]);
 
   // --- Build profile response ---
   return {
     ...isUserExist.toObject(),
+  };
+};
 
-  }
-}
 
 export const UserServices = {
   updateProfile,
@@ -242,4 +230,4 @@ export const UserServices = {
   updateUserStatus,
   getProfile,
   deleteProfile,
-}
+};

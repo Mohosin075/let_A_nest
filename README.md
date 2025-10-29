@@ -7,6 +7,7 @@ A robust and scalable Express.js backend template with enterprise-grade features
 ## 🌟 Features **
 
 ### Authentication & Security
+
 - 🔐 JWT-based authentication
 - 🔑 Social media authentication (Coming soon)
   - Google
@@ -17,16 +18,19 @@ A robust and scalable Express.js backend template with enterprise-grade features
 - 🛡️ Rate limiting and security best practices
 
 ### File Management
+
 - ☁️ Cloudinary integration for media storage
 - 📂 AWS S3 integration for file management
 - 📤 Multi-file upload support
 
 ### Payment Integration
+
 - 💳 Stripe payment gateway (Coming soon)
 - 🔄 Webhook support for payment events
 - 💰 Multiple currency support
 
 ### Core Features
+
 - 🎯 TypeScript support
 - 🏗️ Modular architecture
 - 🔍 Input validation
@@ -43,22 +47,26 @@ A robust and scalable Express.js backend template with enterprise-grade features
 ## 🚀 Quick Start
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/express-craft.git
 ```
 
 2. Install dependencies:
+
 ```bash
 cd express-craft
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -143,5 +151,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - All contributors
 
 ---
+
 Made with ❤️ by Asaduzzaman
+
 # template

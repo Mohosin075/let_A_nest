@@ -1,44 +1,57 @@
-import express from 'express';
-import { HosttermsController } from './hostterms.controller';
-import { HosttermsValidations } from './hostterms.validation';
-import validateRequest from '../../middleware/validateRequest';
-import auth from '../../middleware/auth';
-import { USER_ROLES } from '../../../enum/user';
+import express from 'express'
+import { HosttermsController } from './hostterms.controller'
+import { HosttermsValidations } from './hostterms.validation'
+import validateRequest from '../../middleware/validateRequest'
+import auth from '../../middleware/auth'
+import { USER_ROLES } from '../../../enum/user'
 
-const router = express.Router();
+const router = express.Router()
 
 // /hostterms/
-router.route('/')
+router
+  .route('/')
   .get(
     auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST),
-    HosttermsController.getAllHosttermss
+    HosttermsController.getAllHosttermss,
   )
   .patch(
     auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST),
     validateRequest(HosttermsValidations.create),
-    HosttermsController.createHostterms
-  );
+    HosttermsController.createHostterms,
+  )
 
-  router.route('/default')
+router
+  .route('/default')
   .get(
-    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
-    HosttermsController.getHostDefaultTerms
+    auth(
+      USER_ROLES.SUPER_ADMIN,
+      USER_ROLES.ADMIN,
+      USER_ROLES.HOST,
+      USER_ROLES.GUEST,
+    ),
+    HosttermsController.getHostDefaultTerms,
   )
 
 // /hostterms/:id
-router.route('/:id')
+router
+  .route('/:id')
   .get(
-    auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
-    HosttermsController.getSingleHostterms
+    auth(
+      USER_ROLES.SUPER_ADMIN,
+      USER_ROLES.ADMIN,
+      USER_ROLES.HOST,
+      USER_ROLES.GUEST,
+    ),
+    HosttermsController.getSingleHostterms,
   )
   .patch(
     auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST),
     validateRequest(HosttermsValidations.update),
-    HosttermsController.updateHostterms
+    HosttermsController.updateHostterms,
   )
   .delete(
     auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST),
-    HosttermsController.deleteHostterms
-  );
+    HosttermsController.deleteHostterms,
+  )
 
-export const HosttermsRoutes = router;
+export const HosttermsRoutes = router
