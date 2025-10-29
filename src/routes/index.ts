@@ -20,7 +20,8 @@ const apiRoutes: { path: string; route: Router }[] = [
   { path: '/subscription', route: SubscriptionRoutes },
   { path: '/stats', route: StatsRoutes },
   { path: '/property', route: PropertyRoutes },
-  { path: '/hostterms', route: HosttermsRoutes }]
+  { path: '/hostterms', route: HosttermsRoutes },
+]
 
 apiRoutes.forEach(route => {
   router.use(route.path, route.route)

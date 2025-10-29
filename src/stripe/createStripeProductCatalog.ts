@@ -6,7 +6,11 @@ import ApiError from '../errors/ApiError'
 
 export const createStripeProductCatalog = async (
   payload: Partial<IPlan>,
-): Promise<{ productId: string; paymentLink: string; priceId: string } | null> => {
+): Promise<{
+  productId: string
+  paymentLink: string
+  priceId: string
+} | null> => {
   // Create Product in Stripe
   const product = await stripe.products.create({
     name: payload.title as string,
@@ -77,5 +81,9 @@ export const createStripeProductCatalog = async (
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to create payment link')
   }
 
-  return { productId: product.id, paymentLink: paymentLink.url , priceId: price.id }
+  return {
+    productId: product.id,
+    paymentLink: paymentLink.url,
+    priceId: price.id,
+  }
 }

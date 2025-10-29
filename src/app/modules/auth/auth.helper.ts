@@ -4,7 +4,13 @@ import config from '../../../config'
 import { Types } from 'mongoose'
 import bcrypt from 'bcrypt'
 
-const createToken = (authId: Types.ObjectId, role: string, name?: string, email?: string, deviceToken?: string) => {
+const createToken = (
+  authId: Types.ObjectId,
+  role: string,
+  name?: string,
+  email?: string,
+  deviceToken?: string,
+) => {
   const accessToken = jwtHelper.createToken(
     { authId, role, name, email, deviceToken },
     config.jwt.jwt_secret as Secret,
@@ -19,7 +25,13 @@ const createToken = (authId: Types.ObjectId, role: string, name?: string, email?
   return { accessToken, refreshToken }
 }
 
-const tempAccessToken = (authId: Types.ObjectId, role: string, name?: string, email?: string, deviceToken?: string) => {
+const tempAccessToken = (
+  authId: Types.ObjectId,
+  role: string,
+  name?: string,
+  email?: string,
+  deviceToken?: string,
+) => {
   const accessToken = jwtHelper.createToken(
     { authId, role, name, email, deviceToken },
     'asjdhashd#$uaas98',

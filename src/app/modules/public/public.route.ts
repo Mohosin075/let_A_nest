@@ -37,6 +37,10 @@ router.patch(
 )
 router.get('/faq/single/:id', PublicController.getSingleFaq)
 router.get('/faq/all', PublicController.getAllFaqs)
-router.delete('/faq/:id', auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), PublicController.deleteFaq)
+router.delete(
+  '/faq/:id',
+  auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+  PublicController.deleteFaq,
+)
 
 export const PublicRoutes = router

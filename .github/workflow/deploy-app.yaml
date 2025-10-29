@@ -1,0 +1,11 @@
+name: Deploy App
+on: [push, workflow_dispatch]
+jobs:
+  test-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: print working directory
+        run: |
+          pwd
+          ls
+          echo $GITHUB_WORKSPACE

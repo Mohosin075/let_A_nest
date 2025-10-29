@@ -25,14 +25,8 @@
         },
         "url": {
           "raw": "{{base_url}}/api/v1/property",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "property"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "property"]
         }
       }
     },
@@ -43,14 +37,8 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/property",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "property"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "property"]
         }
       }
     },
@@ -61,15 +49,8 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/property/{{property_id}}",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "property",
-            "{{property_id}}"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "property", "{{property_id}}"]
         }
       }
     },
@@ -94,15 +75,8 @@
         },
         "url": {
           "raw": "{{base_url}}/api/v1/property/{{property_id}}",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "property",
-            "{{property_id}}"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "property", "{{property_id}}"]
         }
       }
     },
@@ -113,15 +87,8 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/v1/property/{{property_id}}",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "v1",
-            "property",
-            "{{property_id}}"
-          ]
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "property", "{{property_id}}"]
         }
       }
     }

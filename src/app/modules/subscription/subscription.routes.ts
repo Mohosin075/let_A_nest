@@ -12,13 +12,23 @@ const router = express.Router()
 
 router.get(
   '/',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
+  auth(
+    USER_ROLES.SUPER_ADMIN,
+    USER_ROLES.ADMIN,
+    USER_ROLES.HOST,
+    USER_ROLES.GUEST,
+  ),
   SubscriptionController.subscriptions,
 )
 
 router.get(
   '/my-plan',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
+  auth(
+    USER_ROLES.SUPER_ADMIN,
+    USER_ROLES.ADMIN,
+    USER_ROLES.HOST,
+    USER_ROLES.GUEST,
+  ),
   SubscriptionController.subscriptionDetails,
 )
 

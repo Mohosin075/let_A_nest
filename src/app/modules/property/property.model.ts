@@ -38,7 +38,7 @@ const propertySchema = new Schema<IProperty>(
 
     host: { type: Schema.Types.ObjectId, ref: 'User' },
 
-    addressProofDocument: { type: [String] , default : [], select : 0}, // PDF/image for address verification
+    addressProofDocument: { type: [String], default: [], select: 0 }, // PDF/image for address verification
     verifiedAddress: { type: Boolean, default: false },
 
     status: {
@@ -47,9 +47,9 @@ const propertySchema = new Schema<IProperty>(
       default: PROPERTY_STATUS.PENDING,
     },
 
-    hostTermsAndCondition : Schema.Types.ObjectId,
+    hostTermsAndCondition: Schema.Types.ObjectId,
 
-    agreedTermsAndConditon : {type : Boolean, default : false},
+    agreedTermsAndConditon: { type: Boolean, default: false },
     agreedAt: { type: Date, default: null },
   },
   {

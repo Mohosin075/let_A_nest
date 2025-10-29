@@ -8,9 +8,7 @@
   "paths": {
     "/useronboarding": {
       "post": {
-        "tags": [
-          "Useronboarding"
-        ],
+        "tags": ["Useronboarding"],
         "summary": "Create a new Useronboarding",
         "requestBody": {
           "required": true,
@@ -50,9 +48,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Useronboarding"
-        ],
+        "tags": ["Useronboarding"],
         "summary": "Get all Useronboardings",
         "responses": {
           "200": {
@@ -84,9 +80,7 @@
     },
     "/useronboarding/{id}": {
       "get": {
-        "tags": [
-          "Useronboarding"
-        ],
+        "tags": ["Useronboarding"],
         "summary": "Get Useronboarding by ID",
         "parameters": [
           {
@@ -127,9 +121,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Useronboarding"
-        ],
+        "tags": ["Useronboarding"],
         "summary": "Update Useronboarding",
         "parameters": [
           {
@@ -180,9 +172,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Useronboarding"
-        ],
+        "tags": ["Useronboarding"],
         "summary": "Delete Useronboarding",
         "parameters": [
           {
@@ -225,9 +215,7 @@
     },
     "/content": {
       "post": {
-        "tags": [
-          "Content"
-        ],
+        "tags": ["Content"],
         "summary": "Create a new Content",
         "requestBody": {
           "required": true,
@@ -267,9 +255,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Content"
-        ],
+        "tags": ["Content"],
         "summary": "Get all Contents",
         "responses": {
           "200": {
@@ -301,9 +287,7 @@
     },
     "/content/{id}": {
       "get": {
-        "tags": [
-          "Content"
-        ],
+        "tags": ["Content"],
         "summary": "Get Content by ID",
         "parameters": [
           {
@@ -344,9 +328,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Content"
-        ],
+        "tags": ["Content"],
         "summary": "Update Content",
         "parameters": [
           {
@@ -397,9 +379,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Content"
-        ],
+        "tags": ["Content"],
         "summary": "Delete Content",
         "parameters": [
           {
@@ -442,9 +422,7 @@
     },
     "/socialintegration": {
       "post": {
-        "tags": [
-          "Socialintegration"
-        ],
+        "tags": ["Socialintegration"],
         "summary": "Create a new Socialintegration",
         "requestBody": {
           "required": true,
@@ -484,9 +462,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Socialintegration"
-        ],
+        "tags": ["Socialintegration"],
         "summary": "Get all Socialintegrations",
         "responses": {
           "200": {
@@ -518,9 +494,7 @@
     },
     "/socialintegration/{id}": {
       "get": {
-        "tags": [
-          "Socialintegration"
-        ],
+        "tags": ["Socialintegration"],
         "summary": "Get Socialintegration by ID",
         "parameters": [
           {
@@ -561,9 +535,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Socialintegration"
-        ],
+        "tags": ["Socialintegration"],
         "summary": "Update Socialintegration",
         "parameters": [
           {
@@ -614,9 +586,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Socialintegration"
-        ],
+        "tags": ["Socialintegration"],
         "summary": "Delete Socialintegration",
         "parameters": [
           {
@@ -659,9 +629,7 @@
     },
     "/property": {
       "post": {
-        "tags": [
-          "Property"
-        ],
+        "tags": ["Property"],
         "summary": "Create a new Property",
         "requestBody": {
           "required": true,
@@ -701,9 +669,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Property"
-        ],
+        "tags": ["Property"],
         "summary": "Get all Propertys",
         "responses": {
           "200": {
@@ -735,9 +701,7 @@
     },
     "/property/{id}": {
       "get": {
-        "tags": [
-          "Property"
-        ],
+        "tags": ["Property"],
         "summary": "Get Property by ID",
         "parameters": [
           {
@@ -778,9 +742,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Property"
-        ],
+        "tags": ["Property"],
         "summary": "Update Property",
         "parameters": [
           {
@@ -831,9 +793,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Property"
-        ],
+        "tags": ["Property"],
         "summary": "Delete Property",
         "parameters": [
           {
@@ -876,9 +836,7 @@
     },
     "/hostterms": {
       "post": {
-        "tags": [
-          "Hostterms"
-        ],
+        "tags": ["Hostterms"],
         "summary": "Create a new Hostterms",
         "requestBody": {
           "required": true,
@@ -918,9 +876,7 @@
         }
       },
       "get": {
-        "tags": [
-          "Hostterms"
-        ],
+        "tags": ["Hostterms"],
         "summary": "Get all Hosttermss",
         "responses": {
           "200": {
@@ -952,9 +908,7 @@
     },
     "/hostterms/{id}": {
       "get": {
-        "tags": [
-          "Hostterms"
-        ],
+        "tags": ["Hostterms"],
         "summary": "Get Hostterms by ID",
         "parameters": [
           {
@@ -995,9 +949,7 @@
         }
       },
       "patch": {
-        "tags": [
-          "Hostterms"
-        ],
+        "tags": ["Hostterms"],
         "summary": "Update Hostterms",
         "parameters": [
           {
@@ -1048,9 +1000,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Hostterms"
-        ],
+        "tags": ["Hostterms"],
         "summary": "Delete Hostterms",
         "parameters": [
           {
@@ -1120,9 +1070,7 @@
             "description": "Last update timestamp"
           }
         },
-        "required": [
-          "_id"
-        ]
+        "required": ["_id"]
       },
       "Useronboarding": {
         "type": "object",
@@ -1188,11 +1136,7 @@
             "description": "deletedAt field"
           }
         },
-        "required": [
-          "_id",
-          "businessType",
-          "autoTranslateCaptions"
-        ]
+        "required": ["_id", "businessType", "autoTranslateCaptions"]
       },
       "UseronboardingCreate": {
         "type": "object",
@@ -1254,10 +1198,7 @@
             "description": "deletedAt field"
           }
         },
-        "required": [
-          "businessType",
-          "autoTranslateCaptions"
-        ]
+        "required": ["businessType", "autoTranslateCaptions"]
       },
       "UseronboardingUpdate": {
         "type": "object",
@@ -1377,10 +1318,7 @@
             "description": "Last update timestamp"
           }
         },
-        "required": [
-          "_id",
-          "title"
-        ]
+        "required": ["_id", "title"]
       },
       "ContentCreate": {
         "type": "object",
@@ -1435,9 +1373,7 @@
             "description": "updatedAt field"
           }
         },
-        "required": [
-          "title"
-        ]
+        "required": ["title"]
       },
       "ContentUpdate": {
         "type": "object",
@@ -1532,11 +1468,7 @@
             "description": "Last update timestamp"
           }
         },
-        "required": [
-          "_id",
-          "accountId",
-          "accessToken"
-        ]
+        "required": ["_id", "accountId", "accessToken"]
       },
       "SocialintegrationCreate": {
         "type": "object",
@@ -1563,10 +1495,7 @@
             "description": "expiresAt field"
           }
         },
-        "required": [
-          "accountId",
-          "accessToken"
-        ]
+        "required": ["accountId", "accessToken"]
       },
       "SocialintegrationUpdate": {
         "type": "object",
@@ -1889,9 +1818,7 @@
             "description": "Last update timestamp"
           }
         },
-        "required": [
-          "_id"
-        ]
+        "required": ["_id"]
       },
       "Hostterms": {
         "type": "object",
@@ -1935,9 +1862,7 @@
             "description": "Last update timestamp"
           }
         },
-        "required": [
-          "_id"
-        ]
+        "required": ["_id"]
       },
       "HosttermsCreate": {
         "type": "object",

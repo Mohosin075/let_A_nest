@@ -17,7 +17,13 @@ router
 
 router
   .route('/:id')
-  .patch(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), PlanController.updatePlan)
-  .delete(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), PlanController.deletePlan)
+  .patch(
+    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+    PlanController.updatePlan,
+  )
+  .delete(
+    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+    PlanController.deletePlan,
+  )
 
 export const PlanRoutes = router

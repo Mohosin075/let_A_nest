@@ -1,80 +1,81 @@
-import express from 'express'
-import { UserController } from './user.controller'
-import validateRequest from '../../middleware/validateRequest'
-import auth from '../../middleware/auth'
-import { USER_ROLES } from '../../../enum/user'
-import ApiError from '../../../errors/ApiError'
-import { StatusCodes } from 'http-status-codes'
-import { S3Helper } from '../../../helpers/image/s3helper'
-import fileUploadHandler from '../../middleware/fileUploadHandler'
-import { updateUserSchema } from './user.validation'
+import express from 'express';
+import { UserController } from './user.controller';
+import validateRequest from '../../middleware/validateRequest';
+import auth from '../../middleware/auth';
+import { USER_ROLES } from '../../../enum/user';
+import ApiError from '../../../errors/ApiError';
+import { StatusCodes } from 'http-status-codes';
+import { S3Helper } from '../../../helpers/image/s3helper';
+import fileUploadHandler from '../../middleware/fileUploadHandler';
+import { updateUserSchema } from './user.validation';
 
-const router = express.Router()
+const router = express.Router();
 
-router.get(
-  '/profile',
-  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
-  UserController.getProfile,
-)
+// router.get(
+//  UserController.getProfile,
+// )
 
 router.patch(
   '/profile',
- auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
+  auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
 
   fileUploadHandler(),
 
   async (req, res, next) => {
-    const payload = req.body
+    const payload = req.body;
+
     try {
-      const imageFiles = (req.files as any)?.image as Express.Multer.File[]
+      const imageFiles = (req.files as any)?.image as Express.Multer.File[];
 
       if (imageFiles) {
         // Take the first image only
-        const imageFile = imageFiles[0]
+        const imageFile = imageFiles[0];
 
         // Upload single image to S3
-        const uploadedImageUrl = await S3Helper.uploadToS3(imageFile, 'image')
+        const uploadedImageUrl = await S3Helper.uploadToS3(imageFile, 'image');
 
         if (!uploadedImageUrl) {
-          throw new ApiError(
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            'Failed to upload image',
-          )
+          throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, 'Failed to upload image');
         }
 
         // Merge into req.body for Zod validation
         req.body = {
           profile: uploadedImageUrl,
           ...payload,
-        }
+        };
       }
-      next()
+      next();
     } catch (error) {
-      console.error({ error })
-      res.status(400).json({ message: 'Failed to upload image' })
+      console.error({ error });
+      res.status(400).json({ message: 'Failed to upload image' });
     }
   },
 
   validateRequest(updateUserSchema),
-  UserController.updateProfile,
-)
+  UserController.updateProfile
+);
 
 router.delete(
   '/profile',
   auth(USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN, USER_ROLES.HOST, USER_ROLES.GUEST),
-  UserController.deleteProfile,
-)
-
-router.route('/').get(auth(USER_ROLES.ADMIN, USER_ROLES.GUEST,USER_ROLES.HOST, USER_ROLES.SUPER_ADMIN), UserController.getAllUsers)
+  UserController.deleteProfile
+);
 
 router
-  .route('/:userId')
-  .get(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.getUserById)
-  .delete(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.deleteUser)
-  .patch(
-    auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
-    validateRequest(updateUserSchema),
-    UserController.updateUserStatus,
-  )
+  .route('/')
+  .get(
+    auth(USER_ROLES.ADMIN, USER_ROLES.GUEST, USER_ROLES.HOST, USER_ROLES.SUPER_ADMIN),
+    UserController.getAllUsers
+  ),
+  router
+    .route('/:userId')
+    .get(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.getUserById)
+    .delete(auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN), UserController.deleteUser)
 
-export const UserRoutes = router
+    .patch(
+      auth(USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN),
+      validateRequest(updateUserSchema),
+      UserController.updateUserStatus
+    );
+
+export const UserRoutes = router;
