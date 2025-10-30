@@ -1,19 +1,19 @@
-import cors from 'cors'
-import express, { Request, Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
-import path from 'path'
-import session from 'express-session'
-import cookieParser from 'cookie-parser'
-import passport from './app/modules/auth/passport.auth/config/passport'
+import cors from 'cors';
+import express, { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import path from 'path';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import passport from './app/modules/auth/passport.auth/config/passport';
 
-import router from './routes'
-import { Morgan } from './shared/morgan'
-import globalErrorHandler from './app/middleware/globalErrorHandler'
-import './task/scheduler'
-import handleStripeWebhook from './stripe/handleStripeWebhook'
-import config from './config'
+import router from './routes';
+import { Morgan } from './shared/morgan';
+import globalErrorHandler from './app/middleware/globalErrorHandler';
+import './task/scheduler';
+import handleStripeWebhook from './stripe/handleStripeWebhook';
+import config from './config';
 
-const app = express()
+const app = express();
 
 // -------------------- Middleware --------------------
 // Session must come before passport
@@ -23,42 +23,38 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }, // true if using HTTPS
-  }),
-)
+  })
+);
 
 // Initialize Passport
-app.use(passport.initialize())
-app.use(passport.session())
+app.use(passport.initialize());
+app.use(passport.session());
 
 // CORS
 app.use(
   cors({
     origin: '*',
     credentials: true,
-  }),
-)
+  })
+);
 
 // Body parser
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Cookie parser
-app.use(cookieParser())
+app.use(cookieParser());
 
 // Morgan logging
-app.use(Morgan.successHandler)
-app.use(Morgan.errorHandler)
+app.use(Morgan.successHandler);
+app.use(Morgan.errorHandler);
 
 // -------------------- Static Files --------------------
-app.use(express.static('uploads'))
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')))
+app.use(express.static('uploads'));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // -------------------- Stripe Webhook --------------------
-app.use(
-  '/webhook',
-  express.raw({ type: 'application/json' }),
-  handleStripeWebhook,
-)
+app.use('/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 
 // -------------------- Facebook Login Routes --------------------
 // Start login
@@ -79,8 +75,8 @@ app.get(
       'business_management',
       'read_insights',
     ],
-  }),
-)
+  })
+);
 
 // callback facebook
 app.get(
@@ -90,7 +86,7 @@ app.get(
     session: false,
   }),
   (req: any, res) => {
-    const userData = req.user
+    const userData = req.user;
 
     // const redirectUrl = `https://mohosin5001.binarybards.online/privacy-policy?accessToken=${userData.accessToken}&refreshToken=${userData.refreshToken}&email=${userData.email}&name=${userData.name}`
     // res.redirect(redirectUrl)
@@ -101,17 +97,17 @@ app.get(
       refreshToken: userData.refreshToken,
       email: userData.email,
       name: userData.name,
-    })
-  },
-)
+    });
+  }
+);
 
 // -------------------- API Routes --------------------
-app.use('/api/v1', router)
+app.use('/api/v1', router);
 
 // -------------------- Privacy Policy --------------------
 app.get('/privacy-policy', (req, res) => {
-  res.sendFile(path.join(__dirname, 'privacy-policy.html'))
-})
+  res.sendFile(path.join(__dirname, 'privacy-policy.html'));
+});
 
 // -------------------- Root / Live Response --------------------
 app.get('/', (req: Request, res: Response) => {
@@ -139,11 +135,11 @@ app.get('/', (req: Request, res: Response) => {
         </p>
       </div>
     </div>
-  `)
-})
+  `);
+});
 
 // -------------------- Global Error Handler --------------------
-app.use(globalErrorHandler)
+app.use(globalErrorHandler);
 
 // -------------------- 404 Handler --------------------
 app.use((req, res) => {
@@ -153,8 +149,7 @@ app.use((req, res) => {
     errorMessages: [
       {
         path: req.originalUrl,
-        message:
-          "Congratulations, you've reached a completely useless API endpoint 👏",
+        message: "Congratulations, you've reached a completely useless API endpoint 👏",
       },
       {
         path: '/docs',
@@ -163,7 +158,7 @@ app.use((req, res) => {
     ],
     roast: '404 brain cells not found. Try harder. 🧠❌',
     timestamp: new Date().toISOString(),
-  })
-})
-
-export default app
+  });
+});
+// check update
+export default app;
