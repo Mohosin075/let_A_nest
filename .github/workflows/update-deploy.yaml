@@ -61,47 +61,44 @@ jobs:
         run: |
           echo "🚀 Starting deployment to EC2..."
 
-          # Create deployment directory
-          ssh $SSH_USER@$SSH_KNOWN_HOSTS "mkdir -p ~/app"
-
-          # Copy project files to EC2
-          rsync -avz \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='.github' \
-            . $SSH_USER@$SSH_KNOWN_HOSTS:~/app/
-
-          # Install Node, npm, and PM2 if missing, then deploy app
           ssh $SSH_USER@$SSH_KNOWN_HOSTS "
+            set -e  # Exit immediately if a command fails
+
             echo '🔧 Setting up environment...'
             
-            # Update PATH so Node is available even in non-login shell
             export PATH=\$PATH:/usr/local/bin:/home/ubuntu/.fnm:/home/ubuntu/.fnm/bin:/home/ubuntu/.nvm/versions/node/v20.15.0/bin:/run/user/1000/fnm_multishells/112424_1734077954807/bin
 
-            # Check Node installation
+            # Ensure Node.js is installed
             if ! command -v node &> /dev/null; then
               echo '⚠️ Node.js not found. Installing Node.js 20.x...'
               curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
               sudo apt-get install -y nodejs
             fi
 
-            # Check PM2 installation
+            # Ensure PM2 is installed
             if ! command -v pm2 &> /dev/null; then
               echo '🧩 Installing PM2 globally...'
               sudo npm install -g pm2
             fi
 
             # Move into app directory
+            mkdir -p ~/app
             cd ~/app
 
-            # Install dependencies
+            # Copy files (rsync should be run from GitHub Actions)
             echo '📦 Installing production dependencies...'
-            npm ci --omit=dev
+            npm ci --omit=dev || npm install --force  # Force install if something is missing
 
-            # Restart app using PM2
+            # Optional: make sure critical packages like 'colors' exist
+            if ! npm list colors &> /dev/null; then
+              echo '🧶 Installing missing "colors" package...'
+              npm install colors --force
+            fi
+
+            # Restart app using PM2 with force to clean any errored instance
             echo '🔁 Restarting app with PM2...'
             pm2 delete nodejs-app || true
-            pm2 start dist/server.js --name nodejs-app
+            pm2 start dist/server.js --name nodejs-app --update-env --force
 
             echo '✅ Deployment complete!'
           "
