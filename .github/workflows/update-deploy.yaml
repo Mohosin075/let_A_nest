@@ -53,12 +53,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $SSH_KNOWN_HOSTS >> ~/.ssh/known_hosts
 
-      # Deploy to EC2 using npm
+      # Deploy to EC2
       - name: Deploy to EC2
         env:
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
+          echo "🚀 Starting deployment to EC2..."
+
           # Create deployment directory
           ssh $SSH_USER@$SSH_KNOWN_HOSTS "mkdir -p ~/app"
 
@@ -69,11 +71,37 @@ jobs:
             --exclude='.github' \
             . $SSH_USER@$SSH_KNOWN_HOSTS:~/app/
 
-          # Install dependencies and restart app
+          # Install Node, npm, and PM2 if missing, then deploy app
           ssh $SSH_USER@$SSH_KNOWN_HOSTS "
-            export PATH=$PATH:/run/user/1000/fnm_multishells/112424_1734077954807/bin
+            echo '🔧 Setting up environment...'
+            
+            # Update PATH so Node is available even in non-login shell
+            export PATH=\$PATH:/usr/local/bin:/home/ubuntu/.fnm:/home/ubuntu/.fnm/bin:/home/ubuntu/.nvm/versions/node/v20.15.0/bin:/run/user/1000/fnm_multishells/112424_1734077954807/bin
+
+            # Check Node installation
+            if ! command -v node &> /dev/null; then
+              echo '⚠️ Node.js not found. Installing Node.js 20.x...'
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+
+            # Check PM2 installation
+            if ! command -v pm2 &> /dev/null; then
+              echo '🧩 Installing PM2 globally...'
+              sudo npm install -g pm2
+            fi
+
+            # Move into app directory
             cd ~/app
-            npm ci
+
+            # Install dependencies
+            echo '📦 Installing production dependencies...'
+            npm ci --omit=dev
+
+            # Restart app using PM2
+            echo '🔁 Restarting app with PM2...'
             pm2 delete nodejs-app || true
             pm2 start dist/server.js --name nodejs-app
+
+            echo '✅ Deployment complete!'
           "
