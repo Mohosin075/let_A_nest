@@ -1,5 +1,4 @@
-import fetch from 'node-fetch'
-import { VideoStats } from '../app/modules/content/content.interface'
+import fetch from 'node-fetch';
 
 /**
  * 1️⃣ Get basic Facebook user info
@@ -7,20 +6,20 @@ import { VideoStats } from '../app/modules/content/content.interface'
  */
 export async function getFacebookUser(accessToken: string) {
   try {
-    const url = `https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`
-    const res = await fetch(url)
-    const data = await res.json()
-    console.log({ data })
+    const url = `https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${accessToken}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log({ data });
 
     if (data.error) {
-      console.error('FB User Error:', data.error)
-      throw new Error('Invalid Facebook user token')
+      console.error('FB User Error:', data.error);
+      throw new Error('Invalid Facebook user token');
     }
 
-    return data // { id, name, email, picture }
+    return data; // { id, name, email, picture }
   } catch (err) {
-    console.error(err)
-    throw err
+    console.error(err);
+    throw err;
   }
 }
 
@@ -30,14 +29,14 @@ export async function getFacebookUser(accessToken: string) {
  */
 export async function getFacebookPages(accessToken: string) {
   try {
-    const url = `https://graph.facebook.com/v17.0/me/accounts?fields=id,name,access_token,instagram_business_account&access_token=${accessToken}`
-    const res = await fetch(url)
-    const data = await res.json()
+    const url = `https://graph.facebook.com/v17.0/me/accounts?fields=id,name,access_token,instagram_business_account&access_token=${accessToken}`;
+    const res = await fetch(url);
+    const data = await res.json();
     // console.log(data )
 
     if (data.error) {
-      console.error('FB Pages Error:', data.error)
-      throw new Error('Cannot fetch Facebook pages')
+      console.error('FB Pages Error:', data.error);
+      throw new Error('Cannot fetch Facebook pages');
     }
 
     // Map to include Instagram Business ID if linked
@@ -46,23 +45,19 @@ export async function getFacebookPages(accessToken: string) {
       pageName: page.name,
       pageAccessToken: page.access_token,
       instagramBusinessId: page.instagram_business_account?.id || null,
-    }))
+    }));
 
-    console.log(pages)
+    console.log(pages);
 
-    return pages
+    return pages;
   } catch (err) {
-    console.error(err)
-    throw err
+    console.error(err);
+    throw err;
   }
 }
 
-export async function postToFacebookPage(
-  pageId: string,
-  pageAccessToken: string,
-  message: string,
-) {
-  const url = `https://graph.facebook.com/${pageId}/feed`
+export async function postToFacebookPage(pageId: string, pageAccessToken: string, message: string) {
+  const url = `https://graph.facebook.com/${pageId}/feed`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -70,57 +65,54 @@ export async function postToFacebookPage(
       message,
       access_token: pageAccessToken,
     }),
-  })
+  });
 
-  const data = await res.json()
-  console.log({ post: data })
+  const data = await res.json();
+  console.log({ post: data });
   if (data.error) {
-    throw new Error(`FB Post Error: ${data.error.message}`)
+    throw new Error(`FB Post Error: ${data.error.message}`);
   }
 
-  return data // { id: "post_id" }
+  return data; // { id: "post_id" }
 }
 
-export async function getFacebookPostDetails(
-  objectId: string,
-  pageAccessToken: string,
-) {
-  console.log('hit')
+export async function getFacebookPostDetails(objectId: string, pageAccessToken: string) {
+  console.log('hit');
   try {
     // Step 1: Detect type of object
-    const typeUrl = `https://graph.facebook.com/v23.0/${objectId}?fields=id,object_type&access_token=${pageAccessToken}`
-    const typeRes = await fetch(typeUrl)
-    const typeData = await typeRes.json()
+    const typeUrl = `https://graph.facebook.com/v23.0/${objectId}?fields=id,object_type&access_token=${pageAccessToken}`;
+    const typeRes = await fetch(typeUrl);
+    const typeData = await typeRes.json();
 
     if (typeData.error) {
-      throw new Error(typeData.error.message)
+      throw new Error(typeData.error.message);
     }
 
     // Step 2: Fetch fields based on type
-    let detailsUrl = ''
+    let detailsUrl = '';
 
     if (typeData.object_type === 'video') {
       // For videos
-      detailsUrl = `https://graph.facebook.com/v23.0/${objectId}?fields=id,title,description,permalink_url,created_time,length&access_token=${pageAccessToken}`
+      detailsUrl = `https://graph.facebook.com/v23.0/${objectId}?fields=id,title,description,permalink_url,created_time,length&access_token=${pageAccessToken}`;
     } else {
       // Default: post
-      detailsUrl = `https://graph.facebook.com/v23.0/${objectId}?fields=id,message,created_time,likes.summary(true),comments.summary(true)&access_token=${pageAccessToken}`
+      detailsUrl = `https://graph.facebook.com/v23.0/${objectId}?fields=id,message,created_time,likes.summary(true),comments.summary(true)&access_token=${pageAccessToken}`;
     }
 
-    const detailsRes = await fetch(detailsUrl)
-    const detailsData = await detailsRes.json()
+    const detailsRes = await fetch(detailsUrl);
+    const detailsData = await detailsRes.json();
 
     if (detailsData.error) {
-      throw new Error(detailsData.error.message)
+      throw new Error(detailsData.error.message);
     }
 
     return {
       type: typeData.object_type || 'post',
       details: detailsData,
-    }
+    };
   } catch (err) {
-    console.error('FB Fetch Error:', err)
-    throw err
+    console.error('FB Fetch Error:', err);
+    throw err;
   }
 }
 
@@ -129,25 +121,22 @@ export async function getFacebookPostDetails(
  * @param postId - Facebook Page post ID
  * @param pageAccessToken - Page access token
  */
-export async function deleteFacebookPost(
-  postId: string,
-  pageAccessToken: string,
-) {
+export async function deleteFacebookPost(postId: string, pageAccessToken: string) {
   try {
-    const url = `https://graph.facebook.com/${postId}?access_token=${pageAccessToken}`
-    const res = await fetch(url, { method: 'DELETE' })
-    const data = await res.json()
-    console.log({ deletePost: data })
+    const url = `https://graph.facebook.com/${postId}?access_token=${pageAccessToken}`;
+    const res = await fetch(url, { method: 'DELETE' });
+    const data = await res.json();
+    console.log({ deletePost: data });
 
     if (data.error) {
-      console.error('FB Delete Post Error:', data.error)
-      throw new Error(data.error.message)
+      console.error('FB Delete Post Error:', data.error);
+      throw new Error(data.error.message);
     }
 
-    return data // Usually { success: true }
+    return data; // Usually { success: true }
   } catch (err) {
-    console.error(err)
-    throw err
+    console.error(err);
+    throw err;
   }
 }
 
@@ -155,9 +144,9 @@ export async function postVideoToFacebookPage(
   pageId: string,
   pageAccessToken: string,
   videoUrl: string,
-  description: string,
+  description: string
 ): Promise<{ videoId: string; permalink: string }> {
-  const url = `https://graph.facebook.com/v17.0/${pageId}/videos`
+  const url = `https://graph.facebook.com/v17.0/${pageId}/videos`;
 
   const res = await fetch(url, {
     method: 'POST',
@@ -168,30 +157,25 @@ export async function postVideoToFacebookPage(
       published: true,
       access_token: pageAccessToken,
     }),
-  })
+  });
 
-  const data = await res.json()
+  const data = await res.json();
 
   if (!res.ok || data.error) {
-    throw new Error(
-      `FB Video Post Error: ${data.error?.message || res.statusText}`,
-    )
+    throw new Error(`FB Video Post Error: ${data.error?.message || res.statusText}`);
   }
 
   // Get permalink
   const metaRes = await fetch(
-    `https://graph.facebook.com/v17.0/${data.id}?fields=permalink_url&access_token=${pageAccessToken}`,
-  )
-  const meta = await metaRes.json()
+    `https://graph.facebook.com/v17.0/${data.id}?fields=permalink_url&access_token=${pageAccessToken}`
+  );
+  const meta = await metaRes.json();
 
-  return { videoId: data.id, permalink: meta.permalink_url }
+  return { videoId: data.id, permalink: meta.permalink_url };
 }
 
 // it's not permission from meta. just amni add korsi
-export async function getFacebookVideoFullDetails(
-  videoId: string,
-  pageAccessToken: string,
-) {
+export async function getFacebookVideoFullDetails(videoId: string, pageAccessToken: string) {
   const fields = [
     // Core video meta
     'id',
@@ -211,17 +195,17 @@ export async function getFacebookVideoFullDetails(
     'likes.summary(true)',
     'comments.summary(true)',
     'video_insights.metric(total_video_impressions,total_video_views,total_video_10s_views,post_video_avg_time_watched)',
-  ].join(',')
+  ].join(',');
 
-  const url = `https://graph.facebook.com/v21.0/${videoId}?fields=${fields}&access_token=${pageAccessToken}`
+  const url = `https://graph.facebook.com/v21.0/${videoId}?fields=${fields}&access_token=${pageAccessToken}`;
 
-  const res = await fetch(url)
+  const res = await fetch(url);
   if (!res.ok) {
-    const errText = await res.text()
-    throw new Error(`FB API error: ${res.status} – ${errText}`)
+    const errText = await res.text();
+    throw new Error(`FB API error: ${res.status} – ${errText}`);
   }
 
-  const data = await res.json()
+  const data = await res.json();
 
   // Optional: flatten some nested objects for easier DB storage
   return {
@@ -246,49 +230,48 @@ export async function getFacebookVideoFullDetails(
         ...acc,
         [item.name]: item.values?.[0]?.value,
       }),
-      {},
+      {}
     ),
     // raw: data // keep full payload if you need it later
-  }
+  };
 }
 
 export async function getAllPageVideoStats(
   pageId: string,
-  pageAccessToken: string,
-): Promise<VideoStats[]> {
+  pageAccessToken: string
+): Promise<any[]> {
   // 1️⃣ Fetch the page feed
-  const feedUrl = `https://graph.facebook.com/v23.0/${pageId}/feed?fields=id,attachments{media_type,target,url},created_time,updated_time&access_token=${pageAccessToken}`
-  const feedRes = await fetch(feedUrl)
-  if (!feedRes.ok)
-    throw new Error(`Failed to fetch page feed: ${feedRes.statusText}`)
-  const feedData = await feedRes.json()
+  const feedUrl = `https://graph.facebook.com/v23.0/${pageId}/feed?fields=id,attachments{media_type,target,url},created_time,updated_time&access_token=${pageAccessToken}`;
+  const feedRes = await fetch(feedUrl);
+  if (!feedRes.ok) throw new Error(`Failed to fetch page feed: ${feedRes.statusText}`);
+  const feedData = await feedRes.json();
 
-  const results: VideoStats[] = []
+  const results: any[] = [];
 
   for (const post of feedData.data) {
-    const attachment = post.attachments?.data?.[0]
-    if (!attachment || attachment.media_type !== 'video') continue
+    const attachment = post.attachments?.data?.[0];
+    if (!attachment || attachment.media_type !== 'video') continue;
 
-    const videoId = attachment.target?.id
-    if (!videoId) continue
+    const videoId = attachment.target?.id;
+    if (!videoId) continue;
 
     // 2️⃣ Fetch video node for full details (description, videoUrl, duration)
     const videoRes = await fetch(
-      `https://graph.facebook.com/v23.0/${videoId}?fields=description,source,length&access_token=${pageAccessToken}`,
-    )
-    const videoData = await videoRes.json()
+      `https://graph.facebook.com/v23.0/${videoId}?fields=description,source,length&access_token=${pageAccessToken}`
+    );
+    const videoData = await videoRes.json();
 
-    const description = videoData.description ?? null
-    const videoUrl = videoData.source ?? ''
-    const durationSec = videoData.length ?? 0
+    const description = videoData.description ?? null;
+    const videoUrl = videoData.source ?? '';
+    const durationSec = videoData.length ?? 0;
 
     // 3️⃣ Fetch post-level likes/comments
     const postRes = await fetch(
-      `https://graph.facebook.com/v23.0/${post.id}?fields=likes.summary(true),comments.summary(true)&access_token=${pageAccessToken}`,
-    )
-    const postData = await postRes.json()
-    const likesCount = postData.likes?.summary?.total_count ?? 0
-    const commentsCount = postData.comments?.summary?.total_count ?? 0
+      `https://graph.facebook.com/v23.0/${post.id}?fields=likes.summary(true),comments.summary(true)&access_token=${pageAccessToken}`
+    );
+    const postData = await postRes.json();
+    const likesCount = postData.likes?.summary?.total_count ?? 0;
+    const commentsCount = postData.comments?.summary?.total_count ?? 0;
 
     // 4️⃣ Fetch video insights
     const metricsList = [
@@ -299,16 +282,16 @@ export async function getAllPageVideoStats(
       'total_video_30s_views',
       'total_video_complete_views',
       'post_video_avg_time_watched',
-    ].join(',')
+    ].join(',');
 
     const insightsRes = await fetch(
-      `https://graph.facebook.com/v23.0/${videoId}/video_insights?metric=${metricsList}&access_token=${pageAccessToken}`,
-    )
-    const insightsData = await insightsRes.json()
+      `https://graph.facebook.com/v23.0/${videoId}/video_insights?metric=${metricsList}&access_token=${pageAccessToken}`
+    );
+    const insightsData = await insightsRes.json();
 
-    const metrics: Record<string, number> = {}
+    const metrics: Record<string, number> = {};
     for (const m of insightsData.data || []) {
-      metrics[m.name] = Number(m.values?.[0]?.value ?? 0)
+      metrics[m.name] = Number(m.values?.[0]?.value ?? 0);
     }
 
     results.push({
@@ -322,18 +305,18 @@ export async function getAllPageVideoStats(
       likesCount,
       commentsCount,
       insights: metrics,
-    })
+    });
   }
 
-  return results
+  return results;
 }
 
 export async function uploadFacebookPhoto(
   pageId: string,
   pageAccessToken: string,
-  imageUrl: string,
+  imageUrl: string
 ) {
-  const url = `https://graph.facebook.com/v17.0/${pageId}/photos`
+  const url = `https://graph.facebook.com/v17.0/${pageId}/photos`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -342,25 +325,24 @@ export async function uploadFacebookPhoto(
       published: false, // Important! Don’t publish yet
       access_token: pageAccessToken,
     }),
-  })
+  });
 
-  const data = await res.json()
-  console.log({ photos: data })
-  if (data.error)
-    throw new Error(`FB Photo Upload Error: ${data.error.message}`)
+  const data = await res.json();
+  console.log({ photos: data });
+  if (data.error) throw new Error(`FB Photo Upload Error: ${data.error.message}`);
 
-  return data.id // photo ID
+  return data.id; // photo ID
 }
 
 export async function createFacebookMultiPhotoPost(
   pageId: string,
   pageAccessToken: string,
   photoIds: string[],
-  message: string,
+  message: string
 ) {
-  const attached_media = photoIds.map(id => ({ media_fbid: id }))
+  const attached_media = photoIds.map((id) => ({ media_fbid: id }));
 
-  const url = `https://graph.facebook.com/v17.0/${pageId}/feed`
+  const url = `https://graph.facebook.com/v17.0/${pageId}/feed`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -369,23 +351,22 @@ export async function createFacebookMultiPhotoPost(
       attached_media,
       access_token: pageAccessToken,
     }),
-  })
+  });
 
-  const data = await res.json()
-  console.log({ posts: data })
-  console.log({ postWithPhotos: data })
-  if (data.error)
-    throw new Error(`FB Multi-Photo Post Error: ${data.error.message}`)
+  const data = await res.json();
+  console.log({ posts: data });
+  console.log({ postWithPhotos: data });
+  if (data.error) throw new Error(`FB Multi-Photo Post Error: ${data.error.message}`);
 
-  return data.id // post ID
+  return data.id; // post ID
 }
 
 export async function editFacebookPostCaption(
   postId: string,
   pageAccessToken: string,
-  newCaption: string,
+  newCaption: string
 ) {
-  const url = `https://graph.facebook.com/v17.0/${postId}`
+  const url = `https://graph.facebook.com/v17.0/${postId}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -393,36 +374,36 @@ export async function editFacebookPostCaption(
       message: newCaption,
       access_token: pageAccessToken,
     }),
-  })
-  const data = await res.json()
-  console.log({ updated: data })
-  if (data.error) throw new Error(data.error.message)
-  return data.id
+  });
+  const data = await res.json();
+  console.log({ updated: data });
+  if (data.error) throw new Error(data.error.message);
+  return data.id;
 }
 
 // Instagram part
 
 export async function getInstagramAccountDetails(
   igUserId: string, // Instagram Business Account ID
-  pageAccessToken: string, // Page Access Token linked to Instagram
+  pageAccessToken: string // Page Access Token linked to Instagram
 ) {
   try {
-    const url = `https://graph.facebook.com/v23.0/${igUserId}?fields=id,username,followers_count,follows_count,media_count&access_token=${pageAccessToken}`
+    const url = `https://graph.facebook.com/v23.0/${igUserId}?fields=id,username,followers_count,follows_count,media_count&access_token=${pageAccessToken}`;
 
-    const res = await fetch(url)
-    const data = await res.json()
+    const res = await fetch(url);
+    const data = await res.json();
 
-    console.log({ instagramDetails: data })
+    console.log({ instagramDetails: data });
 
     if (data.error) {
-      console.error('Instagram Details Error:', data.error)
-      throw new Error(data.error.message)
+      console.error('Instagram Details Error:', data.error);
+      throw new Error(data.error.message);
     }
 
-    return data // Contains id, username, followers_count, follows_count, media_count
+    return data; // Contains id, username, followers_count, follows_count, media_count
   } catch (err) {
-    console.error(err)
-    throw err
+    console.error(err);
+    throw err;
   }
 }
 
@@ -431,38 +412,32 @@ export async function postInstagramPhoto(
   igBusinessId: string,
   pageAccessToken: string,
   imageUrl: string,
-  caption: string,
+  caption: string
 ) {
   // Step 1: create the media container
-  const creationRes = await fetch(
-    `https://graph.facebook.com/v21.0/${igBusinessId}/media`,
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        image_url: imageUrl, // must be a public HTTPS URL
-        caption,
-        access_token: pageAccessToken,
-      }),
-    },
-  )
-  const creationData = await creationRes.json()
-  if (creationData.error) throw new Error(creationData.error.message)
+  const creationRes = await fetch(`https://graph.facebook.com/v21.0/${igBusinessId}/media`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      image_url: imageUrl, // must be a public HTTPS URL
+      caption,
+      access_token: pageAccessToken,
+    }),
+  });
+  const creationData = await creationRes.json();
+  if (creationData.error) throw new Error(creationData.error.message);
 
   // Step 2: publish it
-  const publishRes = await fetch(
-    `https://graph.facebook.com/v21.0/${igBusinessId}/media_publish`,
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        creation_id: creationData.id,
-        access_token: pageAccessToken,
-      }),
-    },
-  )
-  const publishData = await publishRes.json()
-  if (publishData.error) throw new Error(publishData.error.message)
+  const publishRes = await fetch(`https://graph.facebook.com/v21.0/${igBusinessId}/media_publish`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      creation_id: creationData.id,
+      access_token: pageAccessToken,
+    }),
+  });
+  const publishData = await publishRes.json();
+  if (publishData.error) throw new Error(publishData.error.message);
 
-  return publishData // returns the IG media ID
+  return publishData; // returns the IG media ID
 }
 
 // instagram reels
@@ -471,48 +446,42 @@ export async function createInstagramReel(
   igBusinessId: string,
   pageAccessToken: string,
   videoUrl: string,
-  caption: string,
+  caption: string
 ): Promise<string> {
-  const res = await fetch(
-    `https://graph.facebook.com/v21.0/${igBusinessId}/media`,
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        media_type: 'REELS', // indicates a reel
-        video_url: videoUrl,
-        caption,
-        access_token: pageAccessToken,
-      }),
-    },
-  )
+  const res = await fetch(`https://graph.facebook.com/v21.0/${igBusinessId}/media`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      media_type: 'REELS', // indicates a reel
+      video_url: videoUrl,
+      caption,
+      access_token: pageAccessToken,
+    }),
+  });
 
-  const data = await res.json()
-  if (data.error) throw new Error(data.error.message)
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
 
-  return data.id // creation_id
+  return data.id; // creation_id
 }
 
 export async function publishInstagramReel(
   igBusinessId: string,
   pageAccessToken: string,
-  creationId: string,
+  creationId: string
 ): Promise<string> {
-  const res = await fetch(
-    `https://graph.facebook.com/v21.0/${igBusinessId}/media_publish`,
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        creation_id: creationId,
-        access_token: pageAccessToken,
-      }),
-    },
-  )
+  const res = await fetch(`https://graph.facebook.com/v21.0/${igBusinessId}/media_publish`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      creation_id: creationId,
+      access_token: pageAccessToken,
+    }),
+  });
 
-  const data = await res.json()
-  console.log({ published_Reels: data })
-  if (data.error) throw new Error(data.error.message)
+  const data = await res.json();
+  console.log({ published_Reels: data });
+  if (data.error) throw new Error(data.error.message);
 
-  return data.id // final IG post ID
+  return data.id; // final IG post ID
 }
 
 // for IG story posting
@@ -521,7 +490,7 @@ export async function createInstagramImageStory(
   igBusinessId: string,
   pageAccessToken: string,
   imageUrl: string,
-  caption?: string,
+  caption?: string
 ): Promise<string> {
   try {
     // Construct request body for image only
@@ -530,51 +499,45 @@ export async function createInstagramImageStory(
       media_type: 'IMAGE',
       image_url: imageUrl,
       caption: caption || '',
-    }
+    };
 
     // Call Graph API to create media container
-    const res = await fetch(
-      `https://graph.facebook.com/v23.0/${igBusinessId}/media`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      },
-    )
+    const res = await fetch(`https://graph.facebook.com/v23.0/${igBusinessId}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
 
-    const data = await res.json()
+    const data = await res.json();
 
     if (data.error) {
-      console.error('Instagram Image Story Error Response:', data.error)
-      throw new Error(data.error.message)
+      console.error('Instagram Image Story Error Response:', data.error);
+      throw new Error(data.error.message);
     }
 
-    console.log('Instagram Image Story Created:', data)
-    return data.id // creation_id
+    console.log('Instagram Image Story Created:', data);
+    return data.id; // creation_id
   } catch (err) {
-    console.error('Instagram Image Story Error:', err)
-    throw err
+    console.error('Instagram Image Story Error:', err);
+    throw err;
   }
 }
 
 export async function publishInstagramStory(
   igBusinessId: string,
   pageAccessToken: string,
-  creationId: string,
+  creationId: string
 ) {
-  const res = await fetch(
-    `https://graph.facebook.com/v21.0/${igBusinessId}/media_publish`,
-    {
-      method: 'POST',
-      body: new URLSearchParams({
-        creation_id: creationId,
-        access_token: pageAccessToken,
-      }),
-    },
-  )
+  const res = await fetch(`https://graph.facebook.com/v21.0/${igBusinessId}/media_publish`, {
+    method: 'POST',
+    body: new URLSearchParams({
+      creation_id: creationId,
+      access_token: pageAccessToken,
+    }),
+  });
 
-  const data = await res.json()
-  console.log({ data })
-  if (data.error) throw new Error(data.error.message)
-  return data.id // live Story ID
+  const data = await res.json();
+  console.log({ data });
+  if (data.error) throw new Error(data.error.message);
+  return data.id; // live Story ID
 }
