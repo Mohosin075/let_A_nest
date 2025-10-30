@@ -58,6 +58,7 @@ jobs:
         env:
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
           SSH_USER: ${{ secrets.SSH_USER }}
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
         run: |
           echo "🚀 Starting deployment to EC2..."
 
@@ -85,9 +86,12 @@ jobs:
             mkdir -p ~/app
             cd ~/app
 
-            # Copy files (rsync should be run from GitHub Actions)
+            # Write full env secret to .env file
+            echo \"\$ENV_FILE_CONTENT\" > .env
+
+            # Install production dependencies
             echo '📦 Installing production dependencies...'
-            npm ci --omit=dev || npm install --force  # Force install if something is missing
+            npm ci --omit=dev || npm install --force
 
             # Optional: make sure critical packages like 'colors' exist
             if ! npm list colors &> /dev/null; then
